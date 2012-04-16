@@ -1,0 +1,133 @@
+#!/bin/bash
+
+ROOT=`pwd`
+
+ #
+ # Change this as required to point at the root of ThorsAnvil code
+THORSANVIL_ROOT=`dirname ${ROOT}`
+
+ #
+ # If you want to use your own version of boost set USE_INSTALLED_BOOST
+ # to the directory containing 'boost' If not set it will search for the
+ # boost tar.gz archive in the current directory and use that
+ #
+USE_INSTALLED_BOOST=
+
+
+ #
+ # Set to 1 to build boost library
+ #
+BUILD_BOOST=0
+
+ #
+ # Set to 1 to build boost logging.
+ # Note: this implies building the boost lib
+ #
+BOOST_LOG=0
+
+ #
+ # If you want to use the unit test automatically you need this
+ #
+GOOGLE_UNIT_TEST=1
+
+
+
+if [[ ${USE_INSTALLED_BOOST} == "" ]]; then
+    echo "Trying: Un-archive boost"
+
+    BOOST_ARCHIVE=`ls boost_*.tar.gz 2>/dev/null | tail -n 1`
+    if [[ ${BOOST_ARCHIVE} == "" ]]; then
+        echo "Failed to find boost archieve  boost_*.tar.gz"
+        echo "Download from here: http://www.boost.org/users/download/#live"
+        exit 1
+    fi
+    BOOST_ARCHIVE_DIR=${BOOST_ARCHIVE%.tar.gz}
+        
+    if [[ ! -d ${BOOST_ARCHIVE_DIR} ]]; then
+        tar xvzf ${BOOST_ARCHIVE}
+    fi
+
+    USE_INSTALLED_BOOST=`pwd`/${BOOST_ARCHIVE_DIR}
+fi
+
+cd ${ROOT}
+if [[ ${BOOST_LOG} == 1 ]]; then
+    echo "Setting up Boost-Log"
+
+    BOOST_LOG_ARCHIEVE=`ls boost-log-*.zip 2>/dev/null | tail -n 1`
+    if [[ ${BOOST_LOG_ARCHIEVE} == "" ]]; then
+        echo "Failed to find boost-log-*.zip"
+        echo "Download from: http://sourceforge.net/projects/boost-log/"
+        exit 1
+    fi
+    BOOST_LOG_ARCHIVE_DIR=${BOOST_LOG_ARCHIVE%.zip}
+
+    if [[ ! -d ${BOOST_LOG_ARCHIEVE_DIR} ]]; then
+        unzip ${BOOST_LOG_ARCHIVE}
+    fi
+
+    cd ${USE_INSTALLED_BOOST}/boost
+    rm -f log
+    ln -s ${ROOT}/${BOOST_LOG_ARCHIEVE_DIR}/boost/log .
+
+    cd ${USE_INSTALLED_BOOST}/libs
+    rm -f log
+    ln -s ${ROOT}/${BOOST_LOG_ARCHIEVE_DIR}/libs/log .
+
+    BUILD_BOOST=1
+
+fi
+
+cd ${ROOT}
+if [[ ${BUILD_BOOST} == 1 ]]; then
+    echo "Building Boost for ThorsAnvil"
+
+    cd ${USE_INSTALLED_BOOST}
+    ./bootstrap.sh
+
+    #
+    # Build for the MAC
+    # ./bjam --prefix=${THORSANVIL_ROOT}/build/ --includedir=${THOSANVIL_ROOT}/build/include3rd define=BOOST_LOG_USE_CHAR define=BOOST_FILESYSTEM_VERSION=2 install
+    ./bjam --prefix=${THORSANVIL_ROOT}/build/ --includedir=${THORSANVIL_ROOT}/build/include3rd define=BOOST_LOG_USE_CHAR install
+
+else
+    echo "Linking Boost to ThorsAnvil Code"
+
+    cd ${THORSANVIL_ROOT}/build/include3rd
+    rm -f boost
+    ln -s ${USE_INSTALLED_BOOST}/boost .
+
+fi
+
+
+cd ${ROOT}
+if [[ ${GOOGLE_UNIT_TEST} == 1 ]]; then
+    echo "Un-archiving google test"
+
+    GTEST_ARCHIEVE=`ls gtest-*.zip 2>/dev/null | tail -n 1`
+    if [[ ${GTEST_ARCHIEVE} == "" ]]; then
+        echo "Failed to find gtest-*.zip"
+        echo "Download from: http://googletest.googlecode.com/files/gtest-1.6.0.zip"
+        exit 1
+    fi
+    GTEST_ARCHIEVE_DIR=${GTEST_ARCHIEVE%.zip}
+
+    if [[ ! -d ${GTEST_ARCHIEVE_DIR} ]]; then
+        unzip ${GTEST_ARCHIEVE}
+    fi
+
+    echo "Building google test"
+    cd ${GTEST_ARCHIEVE_DIR}
+    GTEST_DIR=${ROOT}/${GTEST_ARCHIEVE_DIR}
+    g++ -I${GTEST_DIR}/include -I${GTEST_DIR} -c ${GTEST_DIR}/src/gtest-all.cc
+    g++ -I${GTEST_DIR}/include -I${GTEST_DIR} -c ${GTEST_DIR}/src/gtest_main.cc
+    ar -rv libgtest.a gtest-all.o gtest_main.o
+
+    cd ${THORSANVIL_ROOT}/build/
+    cp ${GTEST_DIR}/libgtest.a lib/
+    rm -f include3rd/gtest
+    ln -s ${GTEST_DIR}/include/gtest include3rd/gtest
+
+fi
+
+
