@@ -289,6 +289,23 @@ class JsonImportAction<SerializeInfo, std::string, false>: public ThorsAnvil::Js
         }
 };
 
+template<typename I>
+class JsonImportAction<void*, I*, false>: public ThorsAnvil::Json::SaxAction
+{
+    I*&              memberRef;
+    public:
+        JsonImportAction(I*& mr)
+            : memberRef(mr)
+        {}
+
+        virtual void doAction(ThorsAnvil::Json::ScannerSax&, JsonValue const&)
+        {
+            memberRef   = NULL;
+        }
+        virtual void doPreAction(ThorsAnvil::Json::ScannerSax& parser)
+        {
+        }
+};
 /*
  * Need a function template to create the correct JsonImportAction()
  */
@@ -447,6 +464,37 @@ struct JsonSerializer
     };
 
 };
+
+template<typename T>
+struct JsonSerializeTraits<T*>
+{
+    typedef void*                    SerializeInfo;
+    static JsonSerializeType const  type    = Invalid;
+};
+template<typename T>
+struct MemberScanner<T*, void*>
+{
+    void operator()(ThorsAnvil::Json::ScannerSax& scanner, T*& destination)
+    {}
+};
+
+template<typename T>
+struct MemberPrinter<T*, void*>
+{
+    void operator()(std::ostream& stream, T* const& source)
+    {
+        BOOST_STATIC_ASSERT(JsonSerializer::template Printer<T>::Printable::value);
+        if (source == NULL)
+        {
+            stream << "null";
+        }
+        else
+        {
+            stream << jsonInternalExport(*source);
+        }
+    }
+};
+
 
 /*
  * Default accessors for fundamental types std::string

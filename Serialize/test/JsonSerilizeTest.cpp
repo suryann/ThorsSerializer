@@ -404,4 +404,30 @@ TEST(JsonSerialize, TestString)
     ValidateSerializedStrings(input, result);
 }
 
+// #####
+
+struct TestPointer
+{
+    TestString*     value;
+};
+
+namespace ThorsAnvil { namespace Serialize { namespace Json {
+template<>
+struct JsonSerializeTraits<TestPointer>
+{
+    THORSANVIL_SERIALIZE_JsonAttribute(TestPointer, value);
+    typedef boost::mpl::vector<value>   SerializeInfo;
+    static  JsonSerializeType const       type    = Map;
+};
+}}}
+
+TEST(JsonSerialize, TestPointerNULL)
+{
+    //std::string input   = "{\"value\": {\"value\":\"plop\" }}";
+    std::string input   = "{\"value\": null }";
+    //std::string result  = testAction<TestPointer>("{ \"value\": {\"value\":\"plop\"}}");
+    std::string result  = testAction<TestPointer>("{ \"value\": null}");
+    ValidateSerializedStrings(input, result);
+}
+
 
