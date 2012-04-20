@@ -167,7 +167,7 @@ class MPLForEachActivateItem
         {}
         // Depending on if the pump is a stream or a scanner
         // Calls      JsonSerialize::activate()
-        // or         JsonDeserialize::activate()
+        // or         JsonDeSerialize::activate()
         template<typename SerializeItem>
         void operator()(SerializeItem const& item) const
         {
@@ -376,6 +376,15 @@ struct MemberPrinter<T, T>
     void operator()(std::ostream& stream, T const& source)
     {
         stream << source;
+    }
+};
+template<>
+struct MemberPrinter<bool>
+{
+    // boolean members need to print true/false
+    void operator()(std::ostream& stream, bool const& source)
+    {
+        stream << std::boolalpha << source;
     }
 };
 template<typename T>

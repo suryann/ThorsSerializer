@@ -81,4 +81,281 @@ TEST(JsonSerialize, OneMemberJsonClass)
     ValidateSerializedStrings(input, result);
 }
 
+// #####
+
+struct TestFloat
+{
+    float value;
+};
+
+namespace ThorsAnvil { namespace Serialize { namespace Json {
+template<>
+struct JsonSerializeTraits<TestFloat>
+{
+    THORSANVIL_SERIALIZE_JsonAttribute(TestFloat, value);
+    typedef boost::mpl::vector<value>   SerializeInfo;
+    static  JsonSerializeType const       type    = Map;
+};
+}}}
+
+TEST(JsonSerialize, TestFloat)
+{
+    std::string input   = "{\"value\": 1234.45}";
+    std::string result  = testAction<TestFloat>("{ \"value\": 1234.45}");
+    ValidateSerializedStrings(input, result);
+}
+
+// #####
+
+struct TestDouble
+{
+    double value;
+};
+
+namespace ThorsAnvil { namespace Serialize { namespace Json {
+template<>
+struct JsonSerializeTraits<TestDouble>
+{
+    THORSANVIL_SERIALIZE_JsonAttribute(TestDouble, value);
+    typedef boost::mpl::vector<value>   SerializeInfo;
+    static  JsonSerializeType const       type    = Map;
+};
+}}}
+
+TEST(JsonSerialize, TestDouble)
+{
+    std::string input   = "{\"value\": 1234.45}";
+    std::string result  = testAction<TestDouble>("{ \"value\": 1234.45}");
+    ValidateSerializedStrings(input, result);
+}
+
+
+// #####
+
+struct TestShort
+{
+    short value;
+};
+
+namespace ThorsAnvil { namespace Serialize { namespace Json {
+template<>
+struct JsonSerializeTraits<TestShort>
+{
+    THORSANVIL_SERIALIZE_JsonAttribute(TestShort, value);
+    typedef boost::mpl::vector<value>   SerializeInfo;
+    static  JsonSerializeType const       type    = Map;
+};
+}}}
+
+TEST(JsonSerialize, TestShort)
+{
+    std::string input   = "{\"value\": 23}";
+    std::string result  = testAction<TestShort>("{ \"value\": 23}");
+    ValidateSerializedStrings(input, result);
+}
+
+// #####
+
+struct TestInt
+{
+    int value;
+};
+
+namespace ThorsAnvil { namespace Serialize { namespace Json {
+template<>
+struct JsonSerializeTraits<TestInt>
+{
+    THORSANVIL_SERIALIZE_JsonAttribute(TestInt, value);
+    typedef boost::mpl::vector<value>   SerializeInfo;
+    static  JsonSerializeType const       type    = Map;
+};
+}}}
+
+TEST(JsonSerialize, TestInt)
+{
+    std::string input   = "{\"value\": 23}";
+    std::string result  = testAction<TestInt>("{ \"value\": 23}");
+    ValidateSerializedStrings(input, result);
+}
+
+// #####
+
+struct TestLong
+{
+    long value;
+};
+
+namespace ThorsAnvil { namespace Serialize { namespace Json {
+template<>
+struct JsonSerializeTraits<TestLong>
+{
+    THORSANVIL_SERIALIZE_JsonAttribute(TestLong, value);
+    typedef boost::mpl::vector<value>   SerializeInfo;
+    static  JsonSerializeType const       type    = Map;
+};
+}}}
+
+TEST(JsonSerialize, TestLong)
+{
+    std::string input   = "{\"value\": 23}";
+    std::string result  = testAction<TestLong>("{ \"value\": 23}");
+    ValidateSerializedStrings(input, result);
+}
+
+
+// #####
+#if 0
+struct TestLongLong
+{
+    long long value;
+};
+
+namespace ThorsAnvil { namespace Serialize { namespace Json {
+template<>
+struct JsonSerializeTraits<TestLongLong>
+{
+    THORSANVIL_SERIALIZE_JsonAttribute(TestLongLong, value);
+    typedef boost::mpl::vector<value>   SerializeInfo;
+    static  JsonSerializeType const       type    = Map;
+};
+}}}
+
+TEST(JsonSerialize, TestLongLong)
+{
+    std::string input   = "{\"value\": 23}";
+    std::string result  = testAction<TestLongLong>("{ \"value\": 23}");
+    ValidateSerializedStrings(input, result);
+}
+#endif
+
+// #####
+
+struct TestUnsignedShort
+{
+    unsigned short value;
+};
+
+namespace ThorsAnvil { namespace Serialize { namespace Json {
+template<>
+struct JsonSerializeTraits<TestUnsignedShort>
+{
+    THORSANVIL_SERIALIZE_JsonAttribute(TestUnsignedShort, value);
+    typedef boost::mpl::vector<value>   SerializeInfo;
+    static  JsonSerializeType const       type    = Map;
+};
+}}}
+
+TEST(JsonSerialize, TestUnsignedShort)
+{
+    std::string input   = "{\"value\": 23}";
+    std::string result  = testAction<TestUnsignedShort>("{ \"value\": 23}");
+    ValidateSerializedStrings(input, result);
+}
+
+// #####
+
+struct TestUnsignedInt
+{
+    unsigned int value;
+};
+
+namespace ThorsAnvil { namespace Serialize { namespace Json {
+template<>
+struct JsonSerializeTraits<TestUnsignedInt>
+{
+    THORSANVIL_SERIALIZE_JsonAttribute(TestUnsignedInt, value);
+    typedef boost::mpl::vector<value>   SerializeInfo;
+    static  JsonSerializeType const       type    = Map;
+};
+}}}
+
+TEST(JsonSerialize, TestUnsignedInt)
+{
+    std::string input   = "{\"value\": 23}";
+    std::string result  = testAction<TestUnsignedInt>("{ \"value\": 23}");
+    ValidateSerializedStrings(input, result);
+}
+
+// #####
+
+struct TestUnsignedLong
+{
+    unsigned long value;
+};
+
+namespace ThorsAnvil { namespace Serialize { namespace Json {
+template<>
+struct JsonSerializeTraits<TestUnsignedLong>
+{
+    THORSANVIL_SERIALIZE_JsonAttribute(TestUnsignedLong, value);
+    typedef boost::mpl::vector<value>   SerializeInfo;
+    static  JsonSerializeType const       type    = Map;
+};
+}}}
+
+TEST(JsonSerialize, TestUnsignedLong)
+{
+    std::string input   = "{\"value\": 23}";
+    std::string result  = testAction<TestUnsignedLong>("{ \"value\": 23}");
+    ValidateSerializedStrings(input, result);
+}
+
+
+// #####
+#if 0
+struct TestUnsignedLongLong
+{
+    unsigned long long value;
+};
+
+namespace ThorsAnvil { namespace Serialize { namespace Json {
+template<>
+struct JsonSerializeTraits<TestUnsignedLongLong>
+{
+    THORSANVIL_SERIALIZE_JsonAttribute(TestUnsignedLongLong, value);
+    typedef boost::mpl::vector<value>   SerializeInfo;
+    static  JsonSerializeType const       type    = Map;
+};
+}}}
+
+TEST(JsonSerialize, TestUnsignedLongLong)
+{
+    std::string input   = "{\"value\": 23}";
+    std::string result  = testAction<TestUnsignedLongLong>("{ \"value\": 23}");
+    ValidateSerializedStrings(input, result);
+}
+#endif
+
+
+// #####
+
+struct TestBool
+{
+    bool value;
+};
+
+namespace ThorsAnvil { namespace Serialize { namespace Json {
+template<>
+struct JsonSerializeTraits<TestBool>
+{
+    THORSANVIL_SERIALIZE_JsonAttribute(TestBool, value);
+    typedef boost::mpl::vector<value>   SerializeInfo;
+    static  JsonSerializeType const       type    = Map;
+};
+}}}
+
+TEST(JsonSerialize, TestBoolTrue)
+{
+    std::string input   = "{\"value\": true}";
+    std::string result  = testAction<TestBool>("{ \"value\": true}");
+    ValidateSerializedStrings(input, result);
+}
+
+TEST(JsonSerialize, TestBoolFalse)
+{
+    std::string input   = "{\"value\": false}";
+    std::string result  = testAction<TestBool>("{ \"value\": false}");
+    ValidateSerializedStrings(input, result);
+}
+
 
