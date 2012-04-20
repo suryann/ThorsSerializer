@@ -423,10 +423,15 @@ struct JsonSerializeTraits<TestPointer>
 
 TEST(JsonSerialize, TestPointerNULL)
 {
-    //std::string input   = "{\"value\": {\"value\":\"plop\" }}";
     std::string input   = "{\"value\": null }";
-    //std::string result  = testAction<TestPointer>("{ \"value\": {\"value\":\"plop\"}}");
     std::string result  = testAction<TestPointer>("{ \"value\": null}");
+    ValidateSerializedStrings(input, result);
+}
+
+TEST(JsonSerialize, TestPointerNotNull)
+{
+    std::string input   = "{\"value\": {\"value\":\"plop\" }}";
+    std::string result  = testAction<TestPointer>("{ \"value\": {\"value\":\"plop\"}}");
     ValidateSerializedStrings(input, result);
 }
 

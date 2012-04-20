@@ -289,23 +289,6 @@ class JsonImportAction<SerializeInfo, std::string, false>: public ThorsAnvil::Js
         }
 };
 
-template<typename I>
-class JsonImportAction<void*, I*, false>: public ThorsAnvil::Json::SaxAction
-{
-    I*&              memberRef;
-    public:
-        JsonImportAction(I*& mr)
-            : memberRef(mr)
-        {}
-
-        virtual void doAction(ThorsAnvil::Json::ScannerSax&, JsonValue const&)
-        {
-            memberRef   = NULL;
-        }
-        virtual void doPreAction(ThorsAnvil::Json::ScannerSax& parser)
-        {
-        }
-};
 /*
  * Need a function template to create the correct JsonImportAction()
  */
@@ -477,6 +460,52 @@ struct MemberScanner<T*, void*>
     void operator()(ThorsAnvil::Json::ScannerSax& scanner, T*& destination)
     {}
 };
+template<typename I>
+class JsonImportAction<void*, I*, false>: public ThorsAnvil::Json::SaxAction
+{
+    I*&              memberRef;
+    bool             ok;
+    JsonImportAction(JsonImportAction const& copy);
+    JsonImportAction& operator=(JsonImportAction const& copy);
+    public:
+        JsonImportAction(I*& mr)
+            : memberRef(mr)
+            , ok(false)
+        {
+            memberRef   = NULL;
+        }
+        ~JsonImportAction()
+        {
+            if (!ok)
+            {
+                delete memberRef;
+                memberRef   = NULL;
+            }
+        }
+
+        virtual void doPreAction(ThorsAnvil::Json::ScannerSax& parser)
+        {
+            memberRef   = new I;
+
+            MemberScanner<I>   scanner;
+            scanner(parser, *memberRef);
+        }
+        virtual void doAction(ThorsAnvil::Json::ScannerSax&, JsonValue const& element)
+        {
+            /* Note: if element is NULL then we parsed an array or a map.
+             *       This means that it was NOT a NULL pointer
+             *       If the element is non NULL then we parsed a simple object (NULL/true/false/Number/String)
+             *       But any non 'null' Json value would have generated an exception. So if &element is not NULL
+             *       then it is a reference to a JsonNULLItem object. Which means we need to clean up.
+             */
+            if (&element != NULL)
+            {
+                delete memberRef;
+                memberRef   = NULL;
+            }
+            ok  = true;
+        }
+};
 
 template<typename T>
 struct MemberPrinter<T*, void*>
@@ -486,6 +515,7 @@ struct MemberPrinter<T*, void*>
         BOOST_STATIC_ASSERT(JsonSerializer::template Printer<T>::Printable::value);
         if (source == NULL)
         {
+
             stream << "null";
         }
         else
