@@ -101,7 +101,7 @@ OPTIMIZER_FLAGS				=	$(OPTIMIZER_FLAGS_$(TARGET_MODE))
 OPTIMIZER_LIBS				=	$(OPTIMIZER_LIBS_$(TARGET_MODE))
 OPTIMIZER_FLAGS_debug		=	-g
 OPTIMIZER_FLAGS_release		=	-O3
-OPTIMIZER_FLAGS_coverage	=	-fprofile-arcs -ftest-coverage
+OPTIMIZER_FLAGS_coverage	=	-g -fprofile-arcs -ftest-coverage
 
 
 CC							=	$(CXX)
@@ -115,7 +115,8 @@ PREXIX_BIN					?=	$(PREFIX)/bin
 PREFIX_LIB					?=	$(PREFIX)/lib
 PREFIX_INC					?=	$(PREFIX)/include
 BUILD_EXTENSION				=	$(BUILD_EXTENSION_$(TARGET_MODE))
-BUILD_EXTENSION_debug			=	D
+BUILD_EXTENSION_debug		=	D
+BUILD_EXTENSION_coverage	=	D
 
 
 #
