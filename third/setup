@@ -23,7 +23,7 @@ BUILD_BOOST=0
  # Set to 1 to build boost logging.
  # Note: this implies building the boost lib
  #
-BOOST_LOG=0
+BOOST_LOG=1
 
  #
  # If you want to use the unit test automatically you need this
@@ -38,7 +38,7 @@ if [[ ${USE_INSTALLED_BOOST} == "" ]]; then
     BOOST_ARCHIVE=`ls boost_*.tar.gz 2>/dev/null | tail -n 1`
     if [[ ${BOOST_ARCHIVE} == "" ]]; then
         echo "Failed to find boost archieve  boost_*.tar.gz"
-        echo "Download from here: http://www.boost.org/users/download/#live"
+        echo "Download from: http://sourceforge.net/projects/boost/files/boost/1.49.0/boost_1_49_0.tar.gz"
         exit 1
     fi
     BOOST_ARCHIVE_DIR=${BOOST_ARCHIVE%.tar.gz}
@@ -57,7 +57,7 @@ if [[ ${BOOST_LOG} == 1 ]]; then
     BOOST_LOG_ARCHIEVE=`ls boost-log-*.zip 2>/dev/null | tail -n 1`
     if [[ ${BOOST_LOG_ARCHIEVE} == "" ]]; then
         echo "Failed to find boost-log-*.zip"
-        echo "Download from: http://sourceforge.net/projects/boost-log/"
+        echo "Download from: http://downloads.sourceforge.net/project/boost-log/boost-log-1.1.zip"
         exit 1
     fi
     BOOST_LOG_ARCHIVE_DIR=${BOOST_LOG_ARCHIVE%.zip}
@@ -83,12 +83,9 @@ if [[ ${BUILD_BOOST} == 1 ]]; then
     echo "Building Boost for ThorsAnvil"
 
     cd ${USE_INSTALLED_BOOST}
-    ./bootstrap.sh
+    ./bootstrap.sh --prefix=${THORSANVIL_ROOT}/build/ --includedir=${THORSANVIL_ROOT}/build/include3rd
+    ./b2 install
 
-    #
-    # Build for the MAC
-    # ./bjam --prefix=${THORSANVIL_ROOT}/build/ --includedir=${THOSANVIL_ROOT}/build/include3rd define=BOOST_LOG_USE_CHAR define=BOOST_FILESYSTEM_VERSION=2 install
-    ./bjam --prefix=${THORSANVIL_ROOT}/build/ --includedir=${THORSANVIL_ROOT}/build/include3rd define=BOOST_LOG_USE_CHAR install
 
 else
     echo "Linking Boost to ThorsAnvil Code"

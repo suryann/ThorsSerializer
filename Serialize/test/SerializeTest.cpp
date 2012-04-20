@@ -43,7 +43,7 @@ template<>
 struct JsonSerializeTraits<EmptyJsonClass>
 {
     typedef void                  SerializeInfo;
-    static PrinterBaseType const  type    = Map;
+    static JsonSerializeType const  type    = Map;
 };
 }}}
 
@@ -67,7 +67,7 @@ struct JsonSerializeTraits<OneMemberJsonClass>
 {
     THORSANVIL_SERIALIZE_JsonAttribute(OneMemberJsonClass, value);
     typedef boost::mpl::vector<value>   SerializeInfo;
-    static  PrinterBaseType const       type    = Map;
+    static  JsonSerializeType const       type    = Map;
 };
 }}}
 
@@ -77,4 +77,5 @@ TEST(Serialize, OneMemberJsonClass)
     std::string result  = testAction<OneMemberJsonClass>("{ \"value\": 15}");
     ValidateSerializedStrings(input, result);
 }
+
 

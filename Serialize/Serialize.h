@@ -3,6 +3,7 @@
 #define THORSANVIL_SIERALIZE_SERIALIZE_H
 
 #include <iostream>
+#include <boost/static_assert.hpp>
 
 
 namespace ThorsAnvil
@@ -29,7 +30,11 @@ struct Importer
 };
 
 template<typename S, typename T>
-Importer<T, typename S::template Parser<T> > importObj(T& object)           {return Importer<T, typename S::template Parser<T> >(object);}
+Importer<T, typename S::template Parser<T> > importObj(T& object)
+{
+    BOOST_STATIC_ASSERT(S::template Parser<T>::Parsable::value);
+    return Importer<T, typename S::template Parser<T> >(object);
+}
 
 
 template<typename T, typename Printer>
@@ -50,7 +55,11 @@ struct Exporter
 };
 
 template<typename S, typename T>
-Exporter<T, typename S::template Printer<T> > exportObj(T const& object)     {return Exporter<T, typename S::template Printer<T> >(object);}
+Exporter<T, typename S::template Printer<T> > exportObj(T const& object)
+{
+    BOOST_STATIC_ASSERT(S::template Printer<T>::Printable::value);
+    return Exporter<T, typename S::template Printer<T> >(object);
+}
 
 
 

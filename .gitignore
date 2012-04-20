@@ -1,2 +1,5 @@
 *.o
-build/*
+coverage
+unittest
+debug
+release

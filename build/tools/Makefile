@@ -128,10 +128,9 @@ BUILD_EXTENSION_debug			=	D
 all:	PrintDebug buildDir Note_Building_$(TARGET_MODE) $(TARGET)
 	@echo "Done"
 validate:		test 
-install:		test try_install_head install_Do$(TARGET_MODE)
+install:		test try_install_head install_Dodebug install_Dorelease
 install_debug:	test try_install_head install_Dodebug
 install_release:test try_install_head install_Dorelease
-install_all:	test try_install_head install_Dodebug install_Dorelease
 	
 install_Dodebug:
 	$(MAKE) TARGET_MODE=debug all doInstall
