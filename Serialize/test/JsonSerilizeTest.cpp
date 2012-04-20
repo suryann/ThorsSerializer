@@ -1,9 +1,12 @@
 
 #include "gtest/gtest.h"
-#include "Serialize.h"
-#include "JsonSerializer.h"
+#include "json.h"
 
 #include <map>
+
+using ThorsAnvil::Serialize::jsonImport;
+using ThorsAnvil::Serialize::jsonExport;
+
 
 template<typename T>
 std::string testAction(std::string const& expected)
@@ -11,10 +14,10 @@ std::string testAction(std::string const& expected)
     T                   object;
 
     std::stringstream   input(expected);
-    input >> ThorsAnvil::Serialize::importObj<ThorsAnvil::Serialize::Json::JsonSerializer>(object);
+    input  >> jsonImport(object);
 
     std::stringstream   output;
-    output << ThorsAnvil::Serialize::exportObj<ThorsAnvil::Serialize::Json::JsonSerializer>(object);
+    output << jsonExport(object);
 
     return output.str();
 }
@@ -28,7 +31,7 @@ void ValidateSerializedStrings(std::string lhs, std::string rhs)
 }
 
 
-TEST(Serialize, JsonMap)
+TEST(JsonSerialize, JsonMap)
 {
     std::string input   = "{}";
     std::string result  = testAction<std::map<std::string, int> >("{}");
@@ -47,7 +50,7 @@ struct JsonSerializeTraits<EmptyJsonClass>
 };
 }}}
 
-TEST(Serialize, EmptyJsonClass)
+TEST(JsonSerialize, EmptyJsonClass)
 {
     std::string input   = "{}";
     std::string result  = testAction<EmptyJsonClass>("{}");
@@ -71,7 +74,7 @@ struct JsonSerializeTraits<OneMemberJsonClass>
 };
 }}}
 
-TEST(Serialize, OneMemberJsonClass)
+TEST(JsonSerialize, OneMemberJsonClass)
 {
     std::string input   = "{\"value\": 15}";
     std::string result  = testAction<OneMemberJsonClass>("{ \"value\": 15}");

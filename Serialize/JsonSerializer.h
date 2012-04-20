@@ -432,7 +432,7 @@ struct JsonSerializer
 
 /*
  * Default accessors for fundamental types std::string
- * The serialize()  Recursively calls jsonExport() on the member to serialize the member.
+ * The serialize()  Recursively calls jsonInternalExport() on the member to serialize the member.
  *
  * The action()     Creates a JsonImportAction() that is registered with the SAX parser that just reads the
  *                  Item directly into the object. If the object is a compound type it uses the SerializeInfo
@@ -447,7 +447,7 @@ class JsonSerialElementAccessor
     JsonSerialElementAccessor(MP mp): memberPtr(mp)    {}
     void serialize(T const& src, std::ostream& stream) const
     {
-        stream << jsonExport(src.*memberPtr);
+        stream << jsonInternalExport(src.*memberPtr);
     }
     std::auto_ptr<ThorsAnvil::Json::SaxAction>      action(T& dst) const
     {
@@ -458,13 +458,13 @@ class JsonSerialElementAccessor
 
 /* Helper functions */
 template<typename T>
-Importer<T, typename JsonSerializer::template Parser<T> >   jsonImport(T& object)
+Importer<T, typename JsonSerializer::template Parser<T> >   jsonInternalImport(T& object)
 {
     return Importer<T, typename JsonSerializer::template Parser<T> >(object);
 }
 
 template<typename T>
-Exporter<T, typename JsonSerializer::template Printer<T> >  jsonExport(T const& object)
+Exporter<T, typename JsonSerializer::template Printer<T> >  jsonInternalExport(T const& object)
 {
     return Exporter<T, typename JsonSerializer::template Printer<T> >(object);
 }
