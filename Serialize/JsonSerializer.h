@@ -239,7 +239,7 @@ struct JsonSerializeItem
  * for each of the compound members that needs to be de-serialized (this is done recursively)
  * So we can de-serialize arbitrary json structures.
  */
-template<typename SerTraits, typename I, bool EnablePod = boost::is_fundamental<I>::value>
+template<typename SerializeInfo, typename I, bool EnablePod = boost::is_fundamental<I>::value>
 class JsonImportAction: public ThorsAnvil::Json::SaxAction
 {
     I&              memberRef;
@@ -255,8 +255,8 @@ class JsonImportAction: public ThorsAnvil::Json::SaxAction
             memberRef   = value.getValue<I>();
         }
 };
-template<typename SerTraits, typename I>
-class JsonImportAction<SerTraits, I, false>: public ThorsAnvil::Json::SaxAction
+template<typename SerializeInfo, typename I>
+class JsonImportAction<SerializeInfo, I, false>: public ThorsAnvil::Json::SaxAction
 {
     I&              memberRef;
     public:
@@ -269,11 +269,11 @@ class JsonImportAction<SerTraits, I, false>: public ThorsAnvil::Json::SaxAction
         //                This is done when the attribute is reached in json not before
         virtual void doPreAction(ThorsAnvil::Json::ScannerSax& parser)
         {
-            boost::mpl::for_each<typename SerTraits::SerializeInfo>(MPLForEachActivateItem<I, ThorsAnvil::Json::ScannerSax>(parser, memberRef));
+            boost::mpl::for_each<SerializeInfo>(MPLForEachActivateItem<I, ThorsAnvil::Json::ScannerSax>(parser, memberRef));
         }
 };
-template<typename SerTraits>
-class JsonImportAction<SerTraits, std::string, false>: public ThorsAnvil::Json::SaxAction
+template<typename SerializeInfo>
+class JsonImportAction<SerializeInfo, std::string, false>: public ThorsAnvil::Json::SaxAction
 {
     std::string&              memberRef;
     public:
@@ -292,10 +292,10 @@ class JsonImportAction<SerTraits, std::string, false>: public ThorsAnvil::Json::
 /*
  * Need a function template to create the correct JsonImportAction()
  */
-template<typename SerTraits, typename T, typename I>
+template<typename SerializeInfo, typename T, typename I>
 ThorsAnvil::Json::SaxAction* new_JsonImportAction(T& dst, I T::* memberPtr)
 {
-    return new JsonImportAction<SerTraits, I>(dst.*memberPtr);
+    return new JsonImportAction<SerializeInfo, I>(dst.*memberPtr);
 }
 
 
@@ -460,7 +460,7 @@ class JsonSerialElementAccessor
     }
     std::auto_ptr<ThorsAnvil::Json::SaxAction>      action(T& dst) const
     {
-        std::auto_ptr<ThorsAnvil::Json::SaxAction>  action(new_JsonImportAction<SerTraits>(dst, memberPtr));
+        std::auto_ptr<ThorsAnvil::Json::SaxAction>  action(new_JsonImportAction<typename SerTraits::SerializeInfo>(dst, memberPtr));
         return action;
     }
 };
