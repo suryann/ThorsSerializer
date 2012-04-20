@@ -387,6 +387,15 @@ struct MemberPrinter<bool>
         stream << std::boolalpha << source;
     }
 };
+template<>
+struct MemberPrinter<std::string>
+{
+    // strings need to be quoted.
+    void operator()(std::ostream& stream, std::string const& source)
+    {
+        stream << '"' << source << '"';
+    }
+};
 template<typename T>
 struct MemberPrinter<T, void>
 {

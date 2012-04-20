@@ -81,6 +81,28 @@ TEST(JsonSerialize, OneMemberJsonClass)
     ValidateSerializedStrings(input, result);
 }
 
+struct NestedJsonTest
+{
+    OneMemberJsonClass  nested;
+};
+
+namespace ThorsAnvil { namespace Serialize { namespace Json {
+template<>
+struct JsonSerializeTraits<NestedJsonTest>
+{
+    THORSANVIL_SERIALIZE_JsonAttribute(NestedJsonTest, nested);
+    typedef boost::mpl::vector<nested>   SerializeInfo;
+    static  JsonSerializeType const       type    = Map;
+};
+}}}
+
+TEST(JsonSerialize, NestedJsonTest)
+{
+    std::string input   = "{\"nested\": {\"value\": 105}}";
+    std::string result  = testAction<NestedJsonTest>("{\"nested\": { \"value\": 105}}");
+    ValidateSerializedStrings(input, result);
+}
+
 // #####
 
 struct TestFloat
@@ -355,6 +377,30 @@ TEST(JsonSerialize, TestBoolFalse)
 {
     std::string input   = "{\"value\": false}";
     std::string result  = testAction<TestBool>("{ \"value\": false}");
+    ValidateSerializedStrings(input, result);
+}
+
+// #####
+
+struct TestString
+{
+    std::string value;
+};
+
+namespace ThorsAnvil { namespace Serialize { namespace Json {
+template<>
+struct JsonSerializeTraits<TestString>
+{
+    THORSANVIL_SERIALIZE_JsonAttribute(TestString, value);
+    typedef boost::mpl::vector<value>   SerializeInfo;
+    static  JsonSerializeType const       type    = Map;
+};
+}}}
+
+TEST(JsonSerialize, TestString)
+{
+    std::string input   = "{\"value\": \"Hi There this is a string\"}";
+    std::string result  = testAction<TestString>("{ \"value\": \"Hi There this is a string\"}");
     ValidateSerializedStrings(input, result);
 }
 
