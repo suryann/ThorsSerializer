@@ -15,6 +15,7 @@
 
 #include "Serialize.h"
 #include "JsonSerializer.h"
+#include "JsonSerializerBasic.h"
 
 namespace ThorsAnvil
 {
