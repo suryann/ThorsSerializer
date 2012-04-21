@@ -34,7 +34,7 @@ void ValidateSerializedStrings(std::string lhs, std::string rhs)
 TEST(JsonSerialize, JsonMap)
 {
     std::string input   = "{}";
-    std::string result  = testAction<std::map<std::string, int> >("{}");
+    std::string result  = testAction<std::map<std::string, int> >(input);
     ValidateSerializedStrings(input, result);
 }
 
@@ -53,7 +53,7 @@ struct JsonSerializeTraits<EmptyJsonClass>
 TEST(JsonSerialize, EmptyJsonClass)
 {
     std::string input   = "{}";
-    std::string result  = testAction<EmptyJsonClass>("{}");
+    std::string result  = testAction<EmptyJsonClass>(input);
     ValidateSerializedStrings(input, result);
 }
 
@@ -77,7 +77,7 @@ struct JsonSerializeTraits<OneMemberJsonClass>
 TEST(JsonSerialize, OneMemberJsonClass)
 {
     std::string input   = "{\"value\": 15}";
-    std::string result  = testAction<OneMemberJsonClass>("{ \"value\": 15}");
+    std::string result  = testAction<OneMemberJsonClass>(input);
     ValidateSerializedStrings(input, result);
 }
 
@@ -99,7 +99,7 @@ struct JsonSerializeTraits<NestedJsonTest>
 TEST(JsonSerialize, NestedJsonTest)
 {
     std::string input   = "{\"nested\": {\"value\": 105}}";
-    std::string result  = testAction<NestedJsonTest>("{\"nested\": { \"value\": 105}}");
+    std::string result  = testAction<NestedJsonTest>(input);
     ValidateSerializedStrings(input, result);
 }
 
@@ -123,7 +123,7 @@ struct JsonSerializeTraits<TestFloat>
 TEST(JsonSerialize, TestFloat)
 {
     std::string input   = "{\"value\": 1234.45}";
-    std::string result  = testAction<TestFloat>("{ \"value\": 1234.45}");
+    std::string result  = testAction<TestFloat>(input);
     ValidateSerializedStrings(input, result);
 }
 
@@ -147,7 +147,7 @@ struct JsonSerializeTraits<TestDouble>
 TEST(JsonSerialize, TestDouble)
 {
     std::string input   = "{\"value\": 1234.45}";
-    std::string result  = testAction<TestDouble>("{ \"value\": 1234.45}");
+    std::string result  = testAction<TestDouble>(input);
     ValidateSerializedStrings(input, result);
 }
 
@@ -172,7 +172,7 @@ struct JsonSerializeTraits<TestShort>
 TEST(JsonSerialize, TestShort)
 {
     std::string input   = "{\"value\": 23}";
-    std::string result  = testAction<TestShort>("{ \"value\": 23}");
+    std::string result  = testAction<TestShort>(input);
     ValidateSerializedStrings(input, result);
 }
 
@@ -196,7 +196,7 @@ struct JsonSerializeTraits<TestInt>
 TEST(JsonSerialize, TestInt)
 {
     std::string input   = "{\"value\": 23}";
-    std::string result  = testAction<TestInt>("{ \"value\": 23}");
+    std::string result  = testAction<TestInt>(input);
     ValidateSerializedStrings(input, result);
 }
 
@@ -220,7 +220,7 @@ struct JsonSerializeTraits<TestLong>
 TEST(JsonSerialize, TestLong)
 {
     std::string input   = "{\"value\": 23}";
-    std::string result  = testAction<TestLong>("{ \"value\": 23}");
+    std::string result  = testAction<TestLong>(input);
     ValidateSerializedStrings(input, result);
 }
 
@@ -245,7 +245,7 @@ struct JsonSerializeTraits<TestLongLong>
 TEST(JsonSerialize, TestLongLong)
 {
     std::string input   = "{\"value\": 23}";
-    std::string result  = testAction<TestLongLong>("{ \"value\": 23}");
+    std::string result  = testAction<TestLongLong>(input);
     ValidateSerializedStrings(input, result);
 }
 #endif
@@ -270,7 +270,7 @@ struct JsonSerializeTraits<TestUnsignedShort>
 TEST(JsonSerialize, TestUnsignedShort)
 {
     std::string input   = "{\"value\": 23}";
-    std::string result  = testAction<TestUnsignedShort>("{ \"value\": 23}");
+    std::string result  = testAction<TestUnsignedShort>(input);
     ValidateSerializedStrings(input, result);
 }
 
@@ -294,7 +294,7 @@ struct JsonSerializeTraits<TestUnsignedInt>
 TEST(JsonSerialize, TestUnsignedInt)
 {
     std::string input   = "{\"value\": 23}";
-    std::string result  = testAction<TestUnsignedInt>("{ \"value\": 23}");
+    std::string result  = testAction<TestUnsignedInt>(input);
     ValidateSerializedStrings(input, result);
 }
 
@@ -318,7 +318,7 @@ struct JsonSerializeTraits<TestUnsignedLong>
 TEST(JsonSerialize, TestUnsignedLong)
 {
     std::string input   = "{\"value\": 23}";
-    std::string result  = testAction<TestUnsignedLong>("{ \"value\": 23}");
+    std::string result  = testAction<TestUnsignedLong>(input);
     ValidateSerializedStrings(input, result);
 }
 
@@ -343,7 +343,7 @@ struct JsonSerializeTraits<TestUnsignedLongLong>
 TEST(JsonSerialize, TestUnsignedLongLong)
 {
     std::string input   = "{\"value\": 23}";
-    std::string result  = testAction<TestUnsignedLongLong>("{ \"value\": 23}");
+    std::string result  = testAction<TestUnsignedLongLong>(input);
     ValidateSerializedStrings(input, result);
 }
 #endif
@@ -369,14 +369,14 @@ struct JsonSerializeTraits<TestBool>
 TEST(JsonSerialize, TestBoolTrue)
 {
     std::string input   = "{\"value\": true}";
-    std::string result  = testAction<TestBool>("{ \"value\": true}");
+    std::string result  = testAction<TestBool>(input);
     ValidateSerializedStrings(input, result);
 }
 
 TEST(JsonSerialize, TestBoolFalse)
 {
     std::string input   = "{\"value\": false}";
-    std::string result  = testAction<TestBool>("{ \"value\": false}");
+    std::string result  = testAction<TestBool>(input);
     ValidateSerializedStrings(input, result);
 }
 
@@ -400,7 +400,7 @@ struct JsonSerializeTraits<TestString>
 TEST(JsonSerialize, TestString)
 {
     std::string input   = "{\"value\": \"Hi There this is a string\"}";
-    std::string result  = testAction<TestString>("{ \"value\": \"Hi There this is a string\"}");
+    std::string result  = testAction<TestString>(input);
     ValidateSerializedStrings(input, result);
 }
 
@@ -424,14 +424,14 @@ struct JsonSerializeTraits<TestPointer>
 TEST(JsonSerialize, TestPointerNULL)
 {
     std::string input   = "{\"value\": null }";
-    std::string result  = testAction<TestPointer>("{ \"value\": null}");
+    std::string result  = testAction<TestPointer>(input);
     ValidateSerializedStrings(input, result);
 }
 
 TEST(JsonSerialize, TestPointerNotNull)
 {
     std::string input   = "{\"value\": {\"value\":\"plop\" }}";
-    std::string result  = testAction<TestPointer>("{ \"value\": {\"value\":\"plop\"}}");
+    std::string result  = testAction<TestPointer>(input);
     ValidateSerializedStrings(input, result);
 }
 
