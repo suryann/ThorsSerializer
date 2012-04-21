@@ -247,9 +247,9 @@ class JsonImportAction: public ThorsAnvil::Json::SaxAction
             : memberRef(mr)
         {}
 
-        virtual void doPreAction(ThorsAnvil::Json::ScannerSax&){}
+        virtual void doPreAction(ThorsAnvil::Json::ScannerSax&, ThorsAnvil::Json::Key const&){}
         // Read fundamental type directly into the member
-        virtual void doAction(ThorsAnvil::Json::ScannerSax&, JsonValue const& value)
+        virtual void doAction(ThorsAnvil::Json::ScannerSax&, ThorsAnvil::Json::Key const&, JsonValue const& value)
         {
             memberRef   = value.getValue<I>();
         }
@@ -263,10 +263,10 @@ class JsonImportAction<SerializeInfo, I, false>: public ThorsAnvil::Json::SaxAct
             : memberRef(mr)
         {}
 
-        virtual void doAction(ThorsAnvil::Json::ScannerSax&, JsonValue const&){}
+        virtual void doAction(ThorsAnvil::Json::ScannerSax&, ThorsAnvil::Json::Key const&, JsonValue const&){}
         // Compound type. Register callback for each member.
         //                This is done when the attribute is reached in json not before
-        virtual void doPreAction(ThorsAnvil::Json::ScannerSax& parser)
+        virtual void doPreAction(ThorsAnvil::Json::ScannerSax& parser, ThorsAnvil::Json::Key const&)
         {
             boost::mpl::for_each<SerializeInfo>(MPLForEachActivateItem<I, ThorsAnvil::Json::ScannerSax>(parser, memberRef));
         }

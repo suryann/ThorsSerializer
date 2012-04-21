@@ -37,9 +37,9 @@ class JsonImportAction<SerializeInfo, std::string, false>: public ThorsAnvil::Js
             : memberRef(mr)
         {}
 
-        virtual void doPreAction(ThorsAnvil::Json::ScannerSax&){}
+        virtual void doPreAction(ThorsAnvil::Json::ScannerSax&, ThorsAnvil::Json::Key const&){}
         // Specialization for std::string (as it is supported directly in json)
-        virtual void doAction(ThorsAnvil::Json::ScannerSax&, JsonValue const& value)
+        virtual void doAction(ThorsAnvil::Json::ScannerSax&, ThorsAnvil::Json::Key const&, JsonValue const& value)
         {
             memberRef   = value.getValue<std::string>();
         }
@@ -111,14 +111,14 @@ class JsonImportAction<void*, I*, false>: public ThorsAnvil::Json::SaxAction
             }
         }
 
-        virtual void doPreAction(ThorsAnvil::Json::ScannerSax& parser)
+        virtual void doPreAction(ThorsAnvil::Json::ScannerSax& parser, ThorsAnvil::Json::Key const&)
         {
             memberRef   = new I;
 
             MemberScanner<I>   scanner;
             scanner(parser, *memberRef);
         }
-        virtual void doAction(ThorsAnvil::Json::ScannerSax&, JsonValue const& element)
+        virtual void doAction(ThorsAnvil::Json::ScannerSax&, ThorsAnvil::Json::Key const&, JsonValue const& element)
         {
             /* Note: if element is NULL then we parsed an array or a map.
              *       This means that it was NOT a NULL pointer

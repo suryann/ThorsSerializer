@@ -20,12 +20,12 @@ struct TestAction: ThorsAnvil::Json::SaxAction
     bool&   action;
     T&      value;
 
-    virtual void doPreAction(ThorsAnvil::Json::ScannerSax&)
+    virtual void doPreAction(ThorsAnvil::Json::ScannerSax&, ThorsAnvil::Json::Key const&)
     {
         preAction   = true;
         ++count;
     }
-    virtual void doAction(ThorsAnvil::Json::ScannerSax&, ThorsAnvil::Json::JsonValue const& input)
+    virtual void doAction(ThorsAnvil::Json::ScannerSax&, ThorsAnvil::Json::Key const&, ThorsAnvil::Json::JsonValue const& input)
     {
         action      = true;
         value       = input.getValue<T>();

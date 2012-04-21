@@ -13,12 +13,22 @@ namespace  ThorsAnvil
     namespace Json
     {
 
+struct Key
+{
+    std::string const   mapKey;
+    int         const   arrKey;
+    bool        const   isMapKey;
+
+    Key(std::string const& key): mapKey(key), arrKey(0),   isMapKey(true) {}
+    Key(int key):                mapKey(""),  arrKey(key), isMapKey(false){}
+};
+
 class ScannerSax;
 struct SaxAction
 {
     virtual ~SaxAction() {}
-    virtual void doAction(ScannerSax&, JsonValue const&) = 0;
-    virtual void doPreAction(ScannerSax&)                = 0;
+    virtual void doAction(ScannerSax&, Key const& key, JsonValue const&) = 0;
+    virtual void doPreAction(ScannerSax&,Key const& key)                 = 0;
 };
 
 

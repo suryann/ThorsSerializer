@@ -119,7 +119,7 @@ void ScannerSax::preActivate(std::string const& mapItem)
     SaxAction*  action = getAction(mapItem);
     if (action != NULL)
     {
-        action->doPreAction(*this);
+        action->doPreAction(*this, Key(mapItem));
     }
 }
 void ScannerSax::preActivate(int index)
@@ -127,7 +127,7 @@ void ScannerSax::preActivate(int index)
     SaxAction*  action = getAction(index);
     if (action != NULL)
     {
-        action->doPreAction(*this);
+        action->doPreAction(*this, Key(index));
     }
 }
 
@@ -136,7 +136,7 @@ void ScannerSax::activate(std::string const& mapItem, JsonValue const& value)
     SaxAction*  action = getAction(mapItem);
     if (action != NULL)
     {
-        action->doAction(*this, value);
+        action->doAction(*this, Key(mapItem), value);
     }
 }
 void ScannerSax::activate(int index, JsonValue const& value)
@@ -144,7 +144,7 @@ void ScannerSax::activate(int index, JsonValue const& value)
     SaxAction*  action = getAction(index);
     if (action != NULL)
     {
-        action->doAction(*this, value);
+        action->doAction(*this, Key(index), value);
     }
 }
 
