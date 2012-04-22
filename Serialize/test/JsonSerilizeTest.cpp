@@ -45,6 +45,13 @@ TEST(JsonSerialize, JsonMapWithMap)
     ValidateSerializedStrings(input, result);
 }
 
+TEST(JsonSerialize, JsonMapWithMapNotStringKey)
+{
+    std::string input   = "[ {\"first\": 1, \"second\": {\"data\": 23, \"location\": 345}}, {\"first\": 2, \"second\": { \"data\": 18, \"location\": 567}}]";
+    std::string result  = testAction<std::map<int, std::map<std::string, int> > >(input);
+    ValidateSerializedStrings(input, result);
+}
+
 class EmptyJsonClass
 {};
 

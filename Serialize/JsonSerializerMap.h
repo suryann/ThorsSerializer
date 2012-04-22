@@ -98,36 +98,24 @@ struct JsonSerialize<std::map<K,V>, A>
 template<typename SerializeInfo, typename K, typename V, bool EnablePod = boost::is_fundamental<V>::value>
 class JsonMapImportAction: public ThorsAnvil::Json::SaxAction
 {
-    std::map<std::string,V>&            destination;
-    public:
-        JsonMapImportAction(std::map<std::string,V>& dst)
-            : destination(dst)
-        {}
+    typedef std::map<K,V>       LocalType;
+    typedef std::pair<K,V>      ValueType;
+    LocalType&                  destination;
+    ValueType                   nextValue;
 
-        virtual void doPreAction(ThorsAnvil::Json::ScannerSax&, ThorsAnvil::Json::Key const&)
-        {
-        }
-        // Read fundamental type directly into the member
-        virtual void doAction(ThorsAnvil::Json::ScannerSax&, ThorsAnvil::Json::Key const& key, JsonValue const& value)
-        {
-        }
-};
-
-template<typename SerializeInfo, typename K, typename V>
-class JsonMapImportAction<SerializeInfo, K, V, false>: public ThorsAnvil::Json::SaxAction
-{
-    std::map<K,V>&            destination;
     public:
-        JsonMapImportAction(std::map<K,V>& dst)
+        JsonMapImportAction(LocalType& dst)
             : destination(dst)
         {}
 
         virtual void doPreAction(ThorsAnvil::Json::ScannerSax& parser, ThorsAnvil::Json::Key const& key)
         {
+            boost::mpl::for_each<typename JsonSerializeTraits<ValueType>::SerializeInfo>(MPLForEachActivateItem<ValueType, ThorsAnvil::Json::ScannerSax>(parser, nextValue));
         }
         // Read fundamental type directly into the member
         virtual void doAction(ThorsAnvil::Json::ScannerSax&, ThorsAnvil::Json::Key const&, JsonValue const&)
         {
+            destination.insert(nextValue);
         }
 };
 template<typename SerializeInfo, typename V>
@@ -186,7 +174,7 @@ class JsonMapAttributeAccessor
 
             for(++loop; loop != src.end(); ++loop)
             {
-                stream << "," << "{\"first\":" << jsonInternalExport(loop->first) << ",\"second\":" << jsonInternalExport(loop->second) >> "}";
+                stream << "," << "{\"first\":" << jsonInternalExport(loop->first) << ",\"second\":" << jsonInternalExport(loop->second) << "}";
             }
         }
     }
@@ -220,10 +208,10 @@ class JsonMapAttributeAccessor<std::string, V>
     }
 };
 
-template<typename K, typename V, typename A>
-struct JsonSerialize<std::map<K,V>, A>
+template<typename K, typename V, typename A, typename RegisterKey>
+struct JsonSerialize<std::map<K,V>, A, RegisterKey>
 {
-    static void activate(JsonSerializeItem<std::map<K,V>, A> const& item, std::ostream& stream, std::map<K,V> const& src)
+    static void activate(JsonSerializeItem<std::map<K,V>, A, RegisterKey> const& item, std::ostream& stream, std::map<K,V> const& src)
     {
         item.accessor.serialize(src, stream);
     }
@@ -234,7 +222,7 @@ struct JsonSerializeTraits<std::map<K, V> >
 {
     typedef std::map<K, V>                  LocalType;
     typedef JsonMapAttributeAccessor<K,V>   Accessor;
-    THORSANVIL_SERIALIZE_JsonGenericAttributeAccess(LocalType, Accessor);
+    THORSANVIL_SERIALIZE_JsonGenericArrAttributeAccess(LocalType, Accessor);
     typedef boost::mpl::vector<genericAccessor>   SerializeInfo;
     static JsonSerializeType const  type    = Array;
 };
@@ -244,8 +232,19 @@ struct JsonSerializeTraits<std::map<std::string, V> >
 {
     typedef std::map<std::string, V>                  LocalType;
     typedef JsonMapAttributeAccessor<std::string,V>   Accessor;
-    THORSANVIL_SERIALIZE_JsonGenericAttributeAccess(LocalType, Accessor);
+    THORSANVIL_SERIALIZE_JsonGenericMapAttributeAccess(LocalType, Accessor);
     typedef boost::mpl::vector<genericAccessor>   SerializeInfo;
+    static JsonSerializeType const  type    = Map;
+};
+
+template<typename K, typename V>
+struct JsonSerializeTraits<std::pair<K,V> >
+{
+    typedef std::pair<K, V>      MyLocalType;
+    THORSANVIL_SERIALIZE_JsonAttribute(MyLocalType, first);
+    THORSANVIL_SERIALIZE_JsonAttribute(MyLocalType, second);
+
+    typedef boost::mpl::vector<first,second>   SerializeInfo;
     static JsonSerializeType const  type    = Map;
 };
 
