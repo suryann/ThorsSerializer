@@ -78,6 +78,8 @@ class ScannerSax
         void            parse(std::istream& src);
         ActionRefNote   registerAction(std::string const& mapItem, std::auto_ptr<SaxAction> action);
         ActionRefNote   registerAction(int index, std::auto_ptr<SaxAction> action);
+        ActionRefNote   registerActionOnAllMapItems(std::auto_ptr<SaxAction> action);
+        ActionRefNote   registerActionOnAllArrItems(std::auto_ptr<SaxAction> action);
         void            replaceAction(ActionRefNote oldActionRef, std::auto_ptr<SaxAction> action);
 
     private:

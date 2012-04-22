@@ -63,6 +63,12 @@ void ScannerSax::parse(std::istream& src)
     parser.parse();
 }
 
+ActionRefNote ScannerSax::registerActionOnAllMapItems(std::auto_ptr<SaxAction> action)
+{
+    // \xFF is an invalid UTF-8 character
+    // The parser will never generate mapItem of this string
+    return registerAction("\xFF", action);
+}
 ActionRefNote ScannerSax::registerAction(std::string const& mapItem, std::auto_ptr<SaxAction> action)
 {
     SaxAction*&  location    = mapActions.front()[mapItem];
@@ -70,6 +76,10 @@ ActionRefNote ScannerSax::registerAction(std::string const& mapItem, std::auto_p
     return &location;
 }
 
+ActionRefNote ScannerSax::registerActionOnAllArrItems(std::auto_ptr<SaxAction> action)
+{
+    return registerAction(-1, action);
+}
 ActionRefNote ScannerSax::registerAction(int index, std::auto_ptr<SaxAction> action)
 {
     SaxAction*&  location    = arrActions.front()[index];

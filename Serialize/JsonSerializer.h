@@ -110,6 +110,13 @@
             : JsonSerializeItem<className, accessor>(#member, accessor())                                                               \
         {}                                                                                                                              \
     }
+#define THORSANVIL_SERIALIZE_JsonGenericAttributeAccess(className, accessor)                                                            \
+    struct genericAccessor: JsonSerializeItem<className, accessor>                                                                      \
+    {                                                                                                                                   \
+        genericAccessor()                                                                                                               \
+            : JsonSerializeItem<className, accessor>("\xFF", accessor())                                                                \
+        {}                                                                                                                              \
+    }
 
 
 
@@ -298,14 +305,6 @@ struct JsonSerializeTraits
     typedef T                     SerializeInfo;
     static JsonSerializeType const  type    = Invalid;
 };
-/* Move This */
-template<typename K, typename V>
-struct JsonSerializeTraits<std::map<K, V> >
-{
-    typedef void                  SerializeInfo;
-    static JsonSerializeType const  type    = Map;
-};
-
 /*
  * The MemberScanner is used to register callbacks that will read sub-members from the json object
  */

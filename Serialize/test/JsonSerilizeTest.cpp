@@ -33,8 +33,15 @@ void ValidateSerializedStrings(std::string lhs, std::string rhs)
 
 TEST(JsonSerialize, JsonMap)
 {
-    std::string input   = "{}";
+    std::string input   = "{\"action\": 15}";
     std::string result  = testAction<std::map<std::string, int> >(input);
+    ValidateSerializedStrings(input, result);
+}
+
+TEST(JsonSerialize, JsonMapWithMap)
+{
+    std::string input   = "{\"action\": {\"data\": 15, \"location\": 12}}";
+    std::string result  = testAction<std::map<std::string, std::map<std::string, int> > >(input);
     ValidateSerializedStrings(input, result);
 }
 
