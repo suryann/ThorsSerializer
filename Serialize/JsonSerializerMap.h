@@ -3,6 +3,7 @@
 #define THORSANVIL_SERIALIZE_JSON_SERIAlIZE_MAP_H
 
 #include "JsonSerializer.h"
+#include "JsonSerializerMemory.h"
 
 #include <map>
 
@@ -154,18 +155,6 @@ struct JsonSerializeTraits<std::map<std::string, V> >
     typedef boost::mpl::vector<genericAccessor>   SerializeInfo;
     static JsonSerializeType const  type    = Map;
 };
-
-template<typename K, typename V>
-struct JsonSerializeTraits<std::pair<K,V> >
-{
-    typedef std::pair<K, V>      LocalType;
-    THORSANVIL_SERIALIZE_JsonAttribute(LocalType, first);
-    THORSANVIL_SERIALIZE_JsonAttribute(LocalType, second);
-
-    typedef boost::mpl::vector<first,second>   SerializeInfo;
-    static JsonSerializeType const  type    = Map;
-};
-
 
 
         }
