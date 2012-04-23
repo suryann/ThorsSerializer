@@ -17,6 +17,7 @@
 #include "JsonSerializer.h"
 #include "JsonSerializerBasic.h"
 #include "JsonSerializerMap.h"
+#include "JsonSerializerVector.h"
 
 namespace ThorsAnvil
 {

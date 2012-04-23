@@ -52,6 +52,26 @@ TEST(JsonSerialize, JsonMapWithMapNotStringKey)
     ValidateSerializedStrings(input, result);
 }
 
+TEST(JsonSerialize, JsonArrayOfPOD)
+{
+    std::string input   = "[ 1, 2, 3, 4, 5, 6, 7]";
+    std::string result  = testAction<std::vector<int> >(input);
+    ValidateSerializedStrings(input, result);
+}
+TEST(JsonSerialize, JsonArrayOfArray)
+{
+    std::string input   = "[ [1, 2, 3, 4, 5, 6, 7], [1,2,3,4], [90,100,200,300]]";
+    std::string result  = testAction<std::vector<std::vector<int> > >(input);
+    ValidateSerializedStrings(input, result);
+}
+TEST(JsonSerialize, JsonArrayOfMap)
+{
+    std::string input   = "[ {\"alpha\": 123, \"beta\": 987, \"gama\": 200}, {\"alpha\": 45, \"beta\": 567, \"plop\": 56}]";
+    std::string result  = testAction<std::vector<std::map<std::string, int> > >(input);
+    ValidateSerializedStrings(input, result);
+}
+
+
 class EmptyJsonClass
 {};
 
