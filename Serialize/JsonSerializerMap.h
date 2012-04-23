@@ -158,9 +158,9 @@ struct JsonSerializeTraits<std::map<std::string, V> >
 template<typename K, typename V>
 struct JsonSerializeTraits<std::pair<K,V> >
 {
-    typedef std::pair<K, V>      MyLocalType;
-    THORSANVIL_SERIALIZE_JsonAttribute(MyLocalType, first);
-    THORSANVIL_SERIALIZE_JsonAttribute(MyLocalType, second);
+    typedef std::pair<K, V>      LocalType;
+    THORSANVIL_SERIALIZE_JsonAttribute(LocalType, first);
+    THORSANVIL_SERIALIZE_JsonAttribute(LocalType, second);
 
     typedef boost::mpl::vector<first,second>   SerializeInfo;
     static JsonSerializeType const  type    = Map;
