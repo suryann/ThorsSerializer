@@ -25,10 +25,9 @@
  *      class MyClass
  *      {
  *          // STUFF
-
+ *
  *          // If any members are private and need to be serialized then
  *          // JsonSerializeTraits<MyClass> must be a friend of the class so it can generate the appropriate code
- *          // The macro THORSANVIL_SERIALIZE_JsonAttribute will try to access these members (See below)
  *
  *          friend class JsonSerializeTraits<MyClass>;
  *      };
@@ -37,33 +36,12 @@
  *      template<>
  *      class JsonSerializeTraits<MyClass>
  *      {
+ *          static ThorsAnvil::Serialize::Json::JsonSerializeType const  type    = Map;
+ *
  *          THORSANVIL_SERIALIZE_JsonAttribute(MyClass, member1);
  *          THORSANVIL_SERIALIZE_JsonAttribute(MyClass, member2);
  *          THORSANVIL_SERIALIZE_JsonAttribute(MyClass, member3);
  *          typedef boost::mps::vector<member1, member2, member3>   SerializeInfo;
- *      };
- *      }}}
- *
- * If you can not access members directly (ie you are trying to write serialization to code that is not yours (std::vector))
- * Then you will need to write your own accessors type to simulate them members you want to serialize:
- *
- *      namespace ThorsAnvil { namespace Serialize { namespace Json {
- *      template<typename T>
- *      class JsonSerializeTraits<std::vector<T> >
- *      {
- *          MIY TODO Example needs updating.
- *          The classes have changed slightly.
- *
- *          // Can not access the members of vector directly.
- *          // So we serialize it as two elements:
- *          //      A size property (so we can reserve space (if we see it first)
- *          //      An elements property. This serialize the elemnts as a Json Array 
- *          //      For each of these we need to write specialized class's to access the public API
- *          //      See ArraySizeAccessor and ArrayElementAccessor for a detailed example
- *          //
- *          THORSANVIL_SERIALIZE_JsonAttributeAccess(std::vector<T>, size,     ArraySizeAccessor);
- *          THORSANVIL_SERIALIZE_JsonAttributeAccess(std::vector<T>, elements, ArrayElementAccessor);
- *          typedef boost::mps::vector<size, elements>              SerializeInfo;
  *      };
  *      }}}
  *
@@ -90,6 +68,25 @@
 #include <iostream>
 
 
+/*
+ * Helper Macros:
+ * 
+ * These are macros that will build some boilerplate types needed by the serialization code.
+ *
+ * THORSANVIL_SERIALIZE_JsonAttribute:          This is the main macro used.
+ *                                              It identifies a class member that will be serialized
+ *
+ * THORSANVIL_SERIALIZE_JsonAttribute_1:        Used internally (should probably not be used by others).
+ * THORSANVIL_SERIALIZE_JsonAttributeAccess:    If you want to run some code to as part of the serialization processes
+ *                                              this macro allows you to specify a type that will be used during serialization.
+ *                                              Examples will be provided in the documentaion.
+ *
+ * THORSANVIL_SERIALIZE_JsonGenericMapAttributeAccess:  A generic accessor can be used to generate multiple items.
+ *                                                      When de-serializing the Json can be applied to multiple elements.
+ *                                                      Used manly for container classes like std::map
+ *THORSANVIL_SERIALIZE_JsonGenericArrAttributeAccess:   A generic accessor used by for arrays rather than maps (std::vector)
+ *                                                      But otherwise identical to THORSANVIL_SERIALIZE_JsonGenericMapAttributeAccess
+ */
 #define THORSANVIL_SERIALIZE_JsonAttribute(className, member)                                                                           \
     typedef BOOST_TYPEOF(((className*)01)->member)    JsonAttribute ## member ## Type;                                                  \
     THORSANVIL_SERIALIZE_JsonAttribute_1(className, member, JsonSerializeTraits<JsonAttribute ## member ## Type>)
@@ -131,7 +128,7 @@ namespace ThorsAnvil
 {
     namespace Serialize
     {
-
+        /* External dependencies from the generic Serialization code */
         template<typename T, typename Parser>
         struct Importer;
                     
@@ -141,7 +138,16 @@ namespace ThorsAnvil
         namespace Json
         {
 
+/* Three basic element types:   Invalid (this obejct is not a top level JSON object)
+ *                              Map     A JSON object   { [<string> : <value> [, <string> : <value>]*]? }
+ *                              Array   A JSON array    [ [<value> [, <value>]*]? ]
+ */
 enum JsonSerializeType {Invalid, Map, Array}; 
+
+/*
+ * All objects that want to be serialized by this code must define their own specialization of this class.
+ * The default version will cause compilation errors. Which hopefully will bring the reader here.
+ */
 template<typename T>
 struct JsonSerializeTraits
 {
@@ -219,6 +225,7 @@ struct JsonSerialize;
 template<typename T, typename A, typename RegisterKey>
 struct JsonSerialize<T, A, RegisterKey, Map>
 {
+    // Generic serialization of a JSON object
     static void activate(JsonSerializeItem<T, A, RegisterKey> const& item, std::ostream& stream, T const& src)
     {
         if (!item.first)
@@ -231,6 +238,7 @@ struct JsonSerialize<T, A, RegisterKey, Map>
 template<typename C, typename A, typename RegisterKey>
 struct JsonSerialize<C, A, RegisterKey, Array>
 {
+    // Generic serialization of a JSON array
     static void activate(JsonSerializeItem<C, A, RegisterKey> const& item, std::ostream& stream, C const& src)
     {
         item.accessor.serialize(src, stream);
@@ -246,6 +254,11 @@ struct JsonDeSerialize
         parser.registerAction(item.memberName, action);
     }
 };
+
+/*
+ * A type holder object that picks up the correct versions of JsonSerialize and JsonDeSerialize
+ * Used by MPLForEachActivateItem to get the correct type
+ */
 template<typename T, typename A, typename RegisterKey>
 struct JsonSerializeItem
 {
@@ -283,9 +296,9 @@ class JsonImportAction: public ThorsAnvil::Json::SaxAction
         {}
 
         virtual void doPreAction(ThorsAnvil::Json::ScannerSax&, ThorsAnvil::Json::Key const&){}
-        // Read fundamental type directly into the member
         virtual void doAction(ThorsAnvil::Json::ScannerSax&, ThorsAnvil::Json::Key const&, JsonValue const& value)
         {
+            // Read fundamental type directly into the member
             memberRef   = value.getValue<I>();
         }
 };
@@ -299,10 +312,10 @@ class JsonImportAction<SerializeInfo, I, false>: public ThorsAnvil::Json::SaxAct
         {}
 
         virtual void doAction(ThorsAnvil::Json::ScannerSax&, ThorsAnvil::Json::Key const&, JsonValue const&){}
-        // Compound type. Register callback for each member.
-        //                This is done when the attribute is reached in json not before
         virtual void doPreAction(ThorsAnvil::Json::ScannerSax& parser, ThorsAnvil::Json::Key const&)
         {
+            // Compound type. Register callback for each member.
+            //                This is done when the attribute is reached in json not before
             boost::mpl::for_each<SerializeInfo>(MPLForEachActivateItem<I, ThorsAnvil::Json::ScannerSax>(parser, memberRef));
         }
 };

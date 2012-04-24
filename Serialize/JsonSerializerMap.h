@@ -8,6 +8,15 @@
 
 #include <map>
 
+/*
+ * There are a couple of specializations for std::map to make serialization to JSON more natural.
+ *
+ * A JSON object uses a string as a key.
+ * This if we have a std::map<> that uses a std::string as a key then it maps directly to a JSON object.
+ *
+ * Any other type of std::map<> will be mapped as JSON array. Where each element in the array is JSON object
+ * that looks like this { "first": <Key>, "second": <value> }
+ */
 namespace ThorsAnvil
 {
     namespace Serialize
@@ -15,6 +24,9 @@ namespace ThorsAnvil
         namespace Json
         {
 
+/*
+ * Default definition for map
+ */
 template<typename K, typename V>
 struct ContainerTraits<std::map<K,V> >
 {
@@ -22,7 +34,20 @@ struct ContainerTraits<std::map<K,V> >
     typedef     V               DataType;
     typedef     std::pair<K,V>  ValueType;
 };
+template<typename K, typename V>
+struct JsonSerializeTraits<std::map<K, V> >
+{
+    static JsonSerializeType const  type    = Array;
 
+    typedef std::map<K, V>                              LocalType;
+    typedef JsonContainerAttributeAccessor<LocalType>   Accessor;
+    THORSANVIL_SERIALIZE_JsonGenericArrAttributeAccess(LocalType, Accessor);
+    typedef boost::mpl::vector<genericAccessor>         SerializeInfo;
+};
+
+/*
+ * The following are specialization for maps that use std::string as they key.
+ */
 template<typename V, typename A, typename RegisterKey>
 struct JsonSerialize<std::map<std::string,V>, A, RegisterKey, Map>
 {
@@ -87,21 +112,9 @@ class JsonContainerImportAction<SerializeInfo, std::map<std::string, V>, false, 
         {
             boost::mpl::for_each<SerializeInfo>(MPLForEachActivateItem<V, ThorsAnvil::Json::ScannerSax>(parser, destination[key.mapKey]));
         }
-        // Read fundamental type directly into the member
         virtual void doAction(ThorsAnvil::Json::ScannerSax&, ThorsAnvil::Json::Key const&, JsonValue const&)
         {}
 };
-template<typename K, typename V>
-struct JsonSerializeTraits<std::map<K, V> >
-{
-    static JsonSerializeType const  type    = Array;
-
-    typedef std::map<K, V>                              LocalType;
-    typedef JsonContainerAttributeAccessor<LocalType>   Accessor;
-    THORSANVIL_SERIALIZE_JsonGenericArrAttributeAccess(LocalType, Accessor);
-    typedef boost::mpl::vector<genericAccessor>         SerializeInfo;
-};
-
 template<typename V>
 struct JsonSerializeTraits<std::map<std::string, V> >
 {
