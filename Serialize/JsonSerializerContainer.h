@@ -38,6 +38,23 @@ class JsonMapImportAction: public ThorsAnvil::Json::SaxAction
             destination.insert(nextValue);
         }
 };
+template<typename SerializeInfo, typename T>
+class JsonMapImportAction<SerializeInfo, std::set<T>, true>: public ThorsAnvil::Json::SaxAction
+{
+    std::set<T>&            destination;
+    public:
+        JsonMapImportAction(std::set<T>& dst)
+            : destination(dst)
+        {}
+
+        virtual void doPreAction(ThorsAnvil::Json::ScannerSax& parser, ThorsAnvil::Json::Key const& key)
+        {}
+        // Read fundamental type directly into the member
+        virtual void doAction(ThorsAnvil::Json::ScannerSax&, ThorsAnvil::Json::Key const& key, JsonValue const& value)
+        {
+            destination.insert(value.getValue<T>());
+        }
+};
 template<typename SerializeInfo, typename V>
 class JsonMapImportAction<SerializeInfo, std::map<std::string,V>, true>: public ThorsAnvil::Json::SaxAction
 {
@@ -83,6 +100,32 @@ ThorsAnvil::Json::SaxAction* new_JsonImportAction(C& dst)
 
 template<typename C>
 class JsonMapAttributeAccessor;
+
+template<typename T>
+class JsonMapAttributeAccessor<std::set<T> >
+{
+    public:
+    void serialize(std::set<T> const& src, std::ostream& stream) const
+    {
+        if (!src.empty())
+        {
+            typename std::set<T>::const_iterator loop = src.begin();
+            //stream << "{\"first\":" << jsonInternalExport(loop->first) << ",\"second\":" << jsonInternalExport(loop->second) << "}";
+            stream << jsonInternalExport(*loop);
+
+            for(++loop; loop != src.end(); ++loop)
+            {
+                stream << "," << jsonInternalExport(*loop);
+            }
+        }
+    }
+    std::auto_ptr<ThorsAnvil::Json::SaxAction>      action(std::set<T>& dst) const
+    {
+        std::auto_ptr<ThorsAnvil::Json::SaxAction>  action(new_JsonImportAction<typename JsonSerializeTraits<T>::SerializeInfo>(dst));
+        return action;
+    }
+};
+
 
 template<typename K, typename V>
 class JsonMapAttributeAccessor<std::map<K,V> >
