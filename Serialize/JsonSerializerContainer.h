@@ -93,11 +93,11 @@ class JsonMapAttributeAccessor<std::map<K,V> >
         if (!src.empty())
         {
             typename std::map<K,V>::const_iterator loop = src.begin();
-            stream << "{\"first\":" << jsonInternalExport(loop->first) << ",\"second\":" << jsonInternalExport(loop->second) << "}";
+            stream << jsonInternalExport(*loop);
 
             for(++loop; loop != src.end(); ++loop)
             {
-                stream << "," << "{\"first\":" << jsonInternalExport(loop->first) << ",\"second\":" << jsonInternalExport(loop->second) << "}";
+                stream << "," << jsonInternalExport(*loop);
             }
         }
     }
