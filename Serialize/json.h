@@ -10,7 +10,7 @@
  *      std::cout << jsonExport(myObj) << std::endl; 
  *      std::cin  >> jsonImport(myObj);
  *
- * If you need to define the interface to serialize a class see the file JsonSerialize.h
+ * If you need to define the interface to serialize a class see the file JsonSerializer.h
  */
 
 #include "Serialize.h"

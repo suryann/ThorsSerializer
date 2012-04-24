@@ -94,11 +94,11 @@ class JsonArrAttributeAccessor
 template<typename T>
 struct JsonSerializeTraits<std::vector<T> >
 {
-    typedef std::vector<T>      LocalType;
-    typedef JsonArrAttributeAccessor<T>   Accessor;
-    THORSANVIL_SERIALIZE_JsonGenericArrAttributeAccess(LocalType, Accessor);
-    typedef boost::mpl::vector<genericAccessor>   SerializeInfo;
     static JsonSerializeType const  type    = Array;
+    typedef std::vector<T>                          LocalType;
+    typedef JsonArrAttributeAccessor<T>             Accessor;
+    THORSANVIL_SERIALIZE_JsonGenericArrAttributeAccess(LocalType, Accessor);
+    typedef boost::mpl::vector<genericAccessor>     SerializeInfo;
 };
 
 

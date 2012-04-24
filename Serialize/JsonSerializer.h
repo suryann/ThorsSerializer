@@ -141,6 +141,14 @@ namespace ThorsAnvil
         namespace Json
         {
 
+enum JsonSerializeType {Invalid, Map, Array}; 
+template<typename T>
+struct JsonSerializeTraits
+{
+    static JsonSerializeType const  type    = Invalid;
+    typedef T                     SerializeInfo;
+};
+
 // Forward declarations
 template<typename T, typename A, typename RegisterKey>
 struct JsonSerializeItem;
@@ -296,7 +304,6 @@ ThorsAnvil::Json::SaxAction* new_JsonImportAction(T& dst, I T::* memberPtr)
 }
 
 
-enum JsonSerializeType {Invalid, Map, Array}; 
 /* Default Serialization Traits:
  * Used by all types without their own specific serialization traits.
  */
@@ -306,12 +313,6 @@ struct JsonSerializeBrace
     static char braces[];
 };
 
-template<typename T>
-struct JsonSerializeTraits
-{
-    typedef T                     SerializeInfo;
-    static JsonSerializeType const  type    = Invalid;
-};
 /*
  * The MemberScanner is used to register callbacks that will read sub-members from the json object
  */
