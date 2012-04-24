@@ -11,6 +11,8 @@
  *      I:      The type of the member
  *      MP:     The type of the member pointer
  *
+ *      S:      Source type (std::ostream output) (ThorsAnvil::Json::ScannerSax input)
+ *
  * Every type that is serializeable has a class JsonSerializeTraits.
  * For basic types (int/float etc) no definition is required and the default template version works
  * For compound types you need to define the type SerializeInfo.
@@ -241,17 +243,42 @@ struct JsonSerialize<C, A, RegisterKey, Array>
     // Generic serialization of a JSON array
     static void activate(JsonSerializeItem<C, A, RegisterKey> const& item, std::ostream& stream, C const& src)
     {
+        if (!item.first)
+        {   stream << ',';
+        }
         item.accessor.serialize(src, stream);
     }
 };
 
 template<typename T, typename A,typename RegisterKey, JsonSerializeType type = JsonSerializeTraits<T>::type>
-struct JsonDeSerialize
+struct JsonDeSerialize;
+
+template<typename T, typename A,typename RegisterKey>
+struct JsonDeSerialize<T, A, RegisterKey, Map>
 {
     static void activate(JsonSerializeItem<T, A, RegisterKey> const& item, ThorsAnvil::Json::ScannerSax& parser, T& dst)
     {
         std::auto_ptr<ThorsAnvil::Json::SaxAction>    action(item.accessor.action(dst));
         parser.registerAction(item.memberName, action);
+    }
+};
+template<typename T, typename A>
+struct JsonDeSerialize<T, A, int, Array>
+{
+    static void activate(JsonSerializeItem<T, A, int> const& item, ThorsAnvil::Json::ScannerSax& parser, T& dst)
+    {
+        std::auto_ptr<ThorsAnvil::Json::SaxAction>    action(item.accessor.action(dst));
+        parser.registerActionOnAllArrItems(action);
+    }
+};
+
+template<typename T, typename A>
+struct JsonDeSerialize<T, A, std::string, Array>
+{
+    static void activate(JsonSerializeItem<T, A, std::string> const& item, ThorsAnvil::Json::ScannerSax& parser, T& dst)
+    {
+        std::auto_ptr<ThorsAnvil::Json::SaxAction>    action(item.accessor.action(dst));
+        parser.registerActionNext(action);
     }
 };
 

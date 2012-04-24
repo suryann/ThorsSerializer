@@ -62,7 +62,17 @@ class ScannerSax
     };
     typedef PtrMap<std::string>                 ScannerMapActionMap;
     typedef std::list<ScannerMapActionMap>      ScannerMapActionList;
-    typedef PtrMap<int>                         ScannerArrActionMap;
+    struct ScannerArrActionMap
+    {
+        typedef PtrMap<int>::const_iterator     const_iterator;
+
+        ScannerArrActionMap() : max(0)          {}
+        void            clear()                 { max = 0; map.clear();}
+        const_iterator  find(int index) const   {return map.find(index);}
+        const_iterator  end()           const   {return map.end();}
+        int                                 max;
+        PtrMap<int>                         map;
+    };
     typedef std::list<ScannerArrActionMap>      ScannerArrActionList;
 
     ScannerMapActionList                    mapActions;
@@ -77,7 +87,7 @@ class ScannerSax
         template<typename Parser>
         void            parse(std::istream& src);
         ActionRefNote   registerAction(std::string const& mapItem, std::auto_ptr<SaxAction> action);
-        ActionRefNote   registerAction(int index, std::auto_ptr<SaxAction> action);
+        ActionRefNote   registerActionNext(std::auto_ptr<SaxAction> action);
         ActionRefNote   registerActionOnAllMapItems(std::auto_ptr<SaxAction> action);
         ActionRefNote   registerActionOnAllArrItems(std::auto_ptr<SaxAction> action);
         void            replaceAction(ActionRefNote oldActionRef, std::auto_ptr<SaxAction> action);
