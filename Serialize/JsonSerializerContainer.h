@@ -15,8 +15,11 @@ namespace ThorsAnvil
 template<typename C>
 struct ContainerTraits;
 
-template<typename SerializeInfo, typename C, bool EnablePod = boost::is_fundamental<typename ContainerTraits<C>::DataType>::value>
-class JsonContainerImportAction: public ThorsAnvil::Json::SaxAction
+template<typename SerializeInfo, typename C, bool EnablePod = boost::is_fundamental<typename ContainerTraits<C>::DataType>::value, bool isConstContainer = ContainerTraits<C>::isConstContainer>
+class JsonContainerImportAction;
+
+template<typename SerializeInfo, typename C>
+class JsonContainerImportAction<SerializeInfo, C, false, true>: public ThorsAnvil::Json::SaxAction
 {
     typedef C                                       LocalType;
     typedef typename ContainerTraits<C>::ValueType  ValueType;
@@ -39,7 +42,7 @@ class JsonContainerImportAction: public ThorsAnvil::Json::SaxAction
         }
 };
 template<typename SerializeInfo, typename C>
-class JsonContainerImportAction<SerializeInfo, C, true>: public ThorsAnvil::Json::SaxAction
+class JsonContainerImportAction<SerializeInfo, C, true, true>: public ThorsAnvil::Json::SaxAction
 {
     C&            destination;
     public:
@@ -55,8 +58,46 @@ class JsonContainerImportAction<SerializeInfo, C, true>: public ThorsAnvil::Json
             destination.insert(value.getValue<typename ContainerTraits<C>::DataType>());
         }
 };
+template<typename SerializeInfo, typename C>
+class JsonContainerImportAction<SerializeInfo, C, false, false>: public ThorsAnvil::Json::SaxAction
+{
+    typedef C                                       LocalType;
+    typedef typename ContainerTraits<C>::DataType   DataType;
+    LocalType&      destination;
 
+    public:
+        JsonContainerImportAction(LocalType& dst)
+            : destination(dst)
+        {}
 
+        virtual void doPreAction(ThorsAnvil::Json::ScannerSax& parser, ThorsAnvil::Json::Key const& key)
+        {
+            destination.push_back(DataType());
+            boost::mpl::for_each<typename JsonSerializeTraits<DataType>::SerializeInfo>(MPLForEachActivateItem<DataType, ThorsAnvil::Json::ScannerSax>(parser, destination.back()));
+        }
+        virtual void doAction(ThorsAnvil::Json::ScannerSax&, ThorsAnvil::Json::Key const&, JsonValue const&)
+        {}
+};
+
+template<typename SerializeInfo, typename C>
+class JsonContainerImportAction<SerializeInfo, C, true, false>: public ThorsAnvil::Json::SaxAction
+{
+    typedef C                                       LocalType;
+    typedef typename ContainerTraits<C>::DataType   DataType;
+    LocalType&      destination;
+
+    public:
+        JsonContainerImportAction(LocalType& dst)
+            : destination(dst)
+        {}
+
+        virtual void doPreAction(ThorsAnvil::Json::ScannerSax&, ThorsAnvil::Json::Key const&)
+        {}
+        virtual void doAction(ThorsAnvil::Json::ScannerSax&, ThorsAnvil::Json::Key const&, JsonValue const& value)
+        {
+            destination.push_back(value.getValue<DataType>());
+        }
+};
 
 
 template<typename SerializeInfo, typename C>
@@ -64,6 +105,7 @@ ThorsAnvil::Json::SaxAction* new_JsonImportAction(C& dst)
 {
     return new JsonContainerImportAction<SerializeInfo,C>(dst);
 }
+
 
 template<typename C>
 class JsonContainerAttributeAccessor
@@ -88,7 +130,6 @@ class JsonContainerAttributeAccessor
         return action;
     }
 };
-
 
         }
     }
