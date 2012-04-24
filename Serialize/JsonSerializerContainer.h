@@ -38,12 +38,12 @@ class JsonContainerImportAction: public ThorsAnvil::Json::SaxAction
             destination.insert(nextValue);
         }
 };
-template<typename SerializeInfo, typename T>
-class JsonContainerImportAction<SerializeInfo, std::set<T>, true>: public ThorsAnvil::Json::SaxAction
+template<typename SerializeInfo, typename C>
+class JsonContainerImportAction<SerializeInfo, C, true>: public ThorsAnvil::Json::SaxAction
 {
-    std::set<T>&            destination;
+    C&            destination;
     public:
-        JsonContainerImportAction(std::set<T>& dst)
+        JsonContainerImportAction(C& dst)
             : destination(dst)
         {}
 
@@ -52,43 +52,10 @@ class JsonContainerImportAction<SerializeInfo, std::set<T>, true>: public ThorsA
         // Read fundamental type directly into the member
         virtual void doAction(ThorsAnvil::Json::ScannerSax&, ThorsAnvil::Json::Key const& key, JsonValue const& value)
         {
-            destination.insert(value.getValue<T>());
+            destination.insert(value.getValue<typename ContainerTraits<C>::DataType>());
         }
 };
-template<typename SerializeInfo, typename V>
-class JsonContainerImportAction<SerializeInfo, std::map<std::string,V>, true>: public ThorsAnvil::Json::SaxAction
-{
-    std::map<std::string,V>&            destination;
-    public:
-        JsonContainerImportAction(std::map<std::string,V>& dst)
-            : destination(dst)
-        {}
 
-        virtual void doPreAction(ThorsAnvil::Json::ScannerSax& parser, ThorsAnvil::Json::Key const& key)
-        {}
-        // Read fundamental type directly into the member
-        virtual void doAction(ThorsAnvil::Json::ScannerSax&, ThorsAnvil::Json::Key const& key, JsonValue const& value)
-        {
-            destination[key.mapKey] = value.getValue<V>();
-        }
-};
-template<typename SerializeInfo, typename V>
-class JsonContainerImportAction<SerializeInfo, std::map<std::string, V>, false>: public ThorsAnvil::Json::SaxAction
-{
-    std::map<std::string,V>&            destination;
-    public:
-        JsonContainerImportAction(std::map<std::string,V>& dst)
-            : destination(dst)
-        {}
-
-        virtual void doPreAction(ThorsAnvil::Json::ScannerSax& parser, ThorsAnvil::Json::Key const& key)
-        {
-            boost::mpl::for_each<SerializeInfo>(MPLForEachActivateItem<V, ThorsAnvil::Json::ScannerSax>(parser, destination[key.mapKey]));
-        }
-        // Read fundamental type directly into the member
-        virtual void doAction(ThorsAnvil::Json::ScannerSax&, ThorsAnvil::Json::Key const&, JsonValue const&)
-        {}
-};
 
 
 
@@ -99,18 +66,14 @@ ThorsAnvil::Json::SaxAction* new_JsonImportAction(C& dst)
 }
 
 template<typename C>
-class JsonContainerAttributeAccessor;
-
-template<typename T>
-class JsonContainerAttributeAccessor<std::set<T> >
+class JsonContainerAttributeAccessor
 {
     public:
-    void serialize(std::set<T> const& src, std::ostream& stream) const
+    void serialize(C const& src, std::ostream& stream) const
     {
         if (!src.empty())
         {
-            typename std::set<T>::const_iterator loop = src.begin();
-            //stream << "{\"first\":" << jsonInternalExport(loop->first) << ",\"second\":" << jsonInternalExport(loop->second) << "}";
+            typename C::const_iterator loop = src.begin();
             stream << jsonInternalExport(*loop);
 
             for(++loop; loop != src.end(); ++loop)
@@ -119,57 +82,9 @@ class JsonContainerAttributeAccessor<std::set<T> >
             }
         }
     }
-    std::auto_ptr<ThorsAnvil::Json::SaxAction>      action(std::set<T>& dst) const
+    std::auto_ptr<ThorsAnvil::Json::SaxAction>      action(C& dst) const
     {
-        std::auto_ptr<ThorsAnvil::Json::SaxAction>  action(new_JsonImportAction<typename JsonSerializeTraits<T>::SerializeInfo>(dst));
-        return action;
-    }
-};
-
-
-template<typename K, typename V>
-class JsonContainerAttributeAccessor<std::map<K,V> >
-{
-    public:
-    void serialize(std::map<K,V> const& src, std::ostream& stream) const
-    {
-        if (!src.empty())
-        {
-            typename std::map<K,V>::const_iterator loop = src.begin();
-            stream << jsonInternalExport(*loop);
-
-            for(++loop; loop != src.end(); ++loop)
-            {
-                stream << "," << jsonInternalExport(*loop);
-            }
-        }
-    }
-    std::auto_ptr<ThorsAnvil::Json::SaxAction>      action(std::map<K,V>& dst) const
-    {
-        std::auto_ptr<ThorsAnvil::Json::SaxAction>  action(new_JsonImportAction<typename JsonSerializeTraits<V>::SerializeInfo>(dst));
-        return action;
-    }
-};
-template<typename V>
-class JsonContainerAttributeAccessor<std::map<std::string, V> >
-{
-    public:
-    void serialize(std::map<std::string,V> const& src, std::ostream& stream) const
-    {
-        if (!src.empty())
-        {
-            typename std::map<std::string,V>::const_iterator loop = src.begin();
-            stream << jsonInternalExport(loop->first) << ":" << jsonInternalExport(loop->second);
-
-            for(++loop; loop != src.end(); ++loop)
-            {
-                stream << "," << jsonInternalExport(loop->first) << ":" << jsonInternalExport(loop->second);
-            }
-        }
-    }
-    std::auto_ptr<ThorsAnvil::Json::SaxAction>      action(std::map<std::string,V>& dst) const
-    {
-        std::auto_ptr<ThorsAnvil::Json::SaxAction>  action(new_JsonImportAction<typename JsonSerializeTraits<V>::SerializeInfo>(dst));
+        std::auto_ptr<ThorsAnvil::Json::SaxAction>  action(new_JsonImportAction<typename JsonSerializeTraits<typename ContainerTraits<C>::DataType>::SerializeInfo>(dst));
         return action;
     }
 };

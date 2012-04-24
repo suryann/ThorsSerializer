@@ -31,6 +31,65 @@ struct JsonSerialize<std::map<std::string,V>, A, RegisterKey, Map>
     }
 };
 
+template<typename V>
+class JsonContainerAttributeAccessor<std::map<std::string, V> >
+{
+    public:
+    void serialize(std::map<std::string,V> const& src, std::ostream& stream) const
+    {
+        if (!src.empty())
+        {
+            typename std::map<std::string,V>::const_iterator loop = src.begin();
+            stream << jsonInternalExport(loop->first) << ":" << jsonInternalExport(loop->second);
+
+            for(++loop; loop != src.end(); ++loop)
+            {
+                stream << "," << jsonInternalExport(loop->first) << ":" << jsonInternalExport(loop->second);
+            }
+        }
+    }
+    std::auto_ptr<ThorsAnvil::Json::SaxAction>      action(std::map<std::string,V>& dst) const
+    {
+        std::auto_ptr<ThorsAnvil::Json::SaxAction>  action(new_JsonImportAction<typename JsonSerializeTraits<V>::SerializeInfo>(dst));
+        return action;
+    }
+};
+
+template<typename SerializeInfo, typename V>
+class JsonContainerImportAction<SerializeInfo, std::map<std::string,V>, true>: public ThorsAnvil::Json::SaxAction
+{
+    std::map<std::string,V>&            destination;
+    public:
+        JsonContainerImportAction(std::map<std::string,V>& dst)
+            : destination(dst)
+        {}
+
+        virtual void doPreAction(ThorsAnvil::Json::ScannerSax& parser, ThorsAnvil::Json::Key const& key)
+        {}
+        // Read fundamental type directly into the member
+        virtual void doAction(ThorsAnvil::Json::ScannerSax&, ThorsAnvil::Json::Key const& key, JsonValue const& value)
+        {
+            destination[key.mapKey] = value.getValue<V>();
+        }
+};
+
+template<typename SerializeInfo, typename V>
+class JsonContainerImportAction<SerializeInfo, std::map<std::string, V>, false>: public ThorsAnvil::Json::SaxAction
+{
+    std::map<std::string,V>&            destination;
+    public:
+        JsonContainerImportAction(std::map<std::string,V>& dst)
+            : destination(dst)
+        {}
+
+        virtual void doPreAction(ThorsAnvil::Json::ScannerSax& parser, ThorsAnvil::Json::Key const& key)
+        {
+            boost::mpl::for_each<SerializeInfo>(MPLForEachActivateItem<V, ThorsAnvil::Json::ScannerSax>(parser, destination[key.mapKey]));
+        }
+        // Read fundamental type directly into the member
+        virtual void doAction(ThorsAnvil::Json::ScannerSax&, ThorsAnvil::Json::Key const&, JsonValue const&)
+        {}
+};
 template<typename K, typename V>
 struct JsonSerializeTraits<std::map<K, V> >
 {
