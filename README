@@ -3,11 +3,12 @@ Yet another JSON serialization library for C++
 
 Objective:
 
-    The objective is to make serialization/de-serialization of C++ object to/from JSON trivial.
+    The objective is to make serialization/de-serialization of C++ object to/from
+    JSON trivial.
 
     This means:
         1) does not build a JSON object. Reads data directly into C++ object.
-        2) In normal usage (in the majority of situations) there should be NO need to write any code.
+        2) In normal usage there should be NO need to write any code.
         3) User should not need to understand JSON or validate its input.
         4) Should work seamlessly with streams.
         5) Standard containers should automatically work
@@ -15,8 +16,9 @@ Objective:
     I am not concerned about speed.
     Though my trivial test work just fine in terms of speed.
     
-    The design was done with the primary goal of communicating with WEB-Servers that speak JSON.
-    The main envisioned usage was for mobile devices were many small JSON objects are transfered in both directions.
+    The design was done with the primary goal of communicating with WEB-Servers
+    that speak JSON. The main envisioned usage was for mobile devices were many
+    small JSON objects are transfered in both directions.
 
 Example: (see code in test.cpp for full code)
 
@@ -39,7 +41,8 @@ Example: (see code in test.cpp for full code)
     template<>
     struct JsonSerializeTraits<MyClass>
     {   
-        static JsonSerializeType const  type    = Map;          // This says serialize as a JSON object.
+        // This says serialize as a JSON object.
+        static JsonSerializeType const  type    = Map;
 
         THORSANVIL_SERIALIZE_JsonAttribute(MyClass, data1);
         THORSANVIL_SERIALIZE_JsonAttribute(MyClass, data2);
@@ -51,9 +54,9 @@ Example: (see code in test.cpp for full code)
     }}} 
 
     # Build
-    > g++ -o test -I build/include3rd/ -I build/include/ test.cpp -L build/lib/ -lserialize -ljson
+    > g++ -o test test.cpp -lserialize -ljson
 
-    The MyClass object is serialize as:
+    # The MyClass object is serialize as:
     {"data1": 56 ,"data2": 23.456 ,"data3": "Hi there" }
 
 
