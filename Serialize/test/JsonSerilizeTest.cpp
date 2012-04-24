@@ -76,6 +76,12 @@ TEST(JsonSerialize, SetOfPOD)
     std::string result  = testAction<std::set<int> >(input);
     ValidateSerializedStrings(input, result);
 }
+TEST(JsonSerialize, SetOfMap)
+{
+    std::string input   = "[ {\"a\": 1, \"b\": 2, \"c\": 3}, {\"a\": 2, \"b\": 2, \"c\": 2}, {\"a\": 2, \"b\":2, \"c\": 3}]";
+    std::string result  = testAction<std::set<std::map<std::string, int> > >(input);
+    ValidateSerializedStrings(input, result);
+}
 
 
 class EmptyJsonClass
