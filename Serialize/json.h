@@ -17,6 +17,7 @@
 #include "JsonSerializer.h"
 #include "JsonSerializerBasic.h"
 #include "JsonSerializerMemory.h"
+#include "JsonSerializerContainer.h"
 #include "JsonSerializerMap.h"
 #include "JsonSerializerVector.h"
 
