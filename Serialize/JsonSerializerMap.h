@@ -18,6 +18,7 @@ namespace ThorsAnvil
 template<typename K, typename V>
 struct ContainerTraits<std::map<K,V> >
 {
+    static bool const isConstContainer  = true;
     typedef     V               DataType;
     typedef     std::pair<K,V>  ValueType;
 };
@@ -56,7 +57,7 @@ class JsonContainerAttributeAccessor<std::map<std::string, V> >
 };
 
 template<typename SerializeInfo, typename V>
-class JsonContainerImportAction<SerializeInfo, std::map<std::string,V>, true>: public ThorsAnvil::Json::SaxAction
+class JsonContainerImportAction<SerializeInfo, std::map<std::string,V>, true, true>: public ThorsAnvil::Json::SaxAction
 {
     std::map<std::string,V>&            destination;
     public:
@@ -74,7 +75,7 @@ class JsonContainerImportAction<SerializeInfo, std::map<std::string,V>, true>: p
 };
 
 template<typename SerializeInfo, typename V>
-class JsonContainerImportAction<SerializeInfo, std::map<std::string, V>, false>: public ThorsAnvil::Json::SaxAction
+class JsonContainerImportAction<SerializeInfo, std::map<std::string, V>, false, true>: public ThorsAnvil::Json::SaxAction
 {
     std::map<std::string,V>&            destination;
     public:

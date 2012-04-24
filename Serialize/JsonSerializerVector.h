@@ -13,82 +13,23 @@ namespace ThorsAnvil
         namespace Json
         {
 
-template<typename SerializeInfo, typename T, bool EnablePod = boost::is_fundamental<T>::value>
-class JsonArrImportAction: public ThorsAnvil::Json::SaxAction
-{
-    typedef std::vector<T>      LocalType;
-    LocalType&                  destination;
-
-    public:
-        JsonArrImportAction(LocalType& dst)
-            : destination(dst)
-        {}
-
-        virtual void doPreAction(ThorsAnvil::Json::ScannerSax&, ThorsAnvil::Json::Key const&)
-        {}
-        virtual void doAction(ThorsAnvil::Json::ScannerSax&, ThorsAnvil::Json::Key const&, JsonValue const& value)
-        {
-            destination.push_back(value.getValue<T>());
-        }
-};
-
-template<typename SerializeInfo, typename T>
-class JsonArrImportAction<SerializeInfo, T, false>: public ThorsAnvil::Json::SaxAction
-{
-    typedef std::vector<T>      LocalType;
-    LocalType&                  destination;
-
-    public:
-        JsonArrImportAction(LocalType& dst)
-            : destination(dst)
-        {}
-
-        virtual void doPreAction(ThorsAnvil::Json::ScannerSax& parser, ThorsAnvil::Json::Key const& key)
-        {
-            destination.push_back(T());
-            boost::mpl::for_each<typename JsonSerializeTraits<T>::SerializeInfo>(MPLForEachActivateItem<T, ThorsAnvil::Json::ScannerSax>(parser, destination.back()));
-        }
-        virtual void doAction(ThorsAnvil::Json::ScannerSax&, ThorsAnvil::Json::Key const&, JsonValue const&)
-        {}
-};
-template<typename SerializeInfo, typename T>
-ThorsAnvil::Json::SaxAction* new_JsonImportAction(std::vector<T>& dst)
-{
-    return new JsonArrImportAction<SerializeInfo,T>(dst);
-}
-
 template<typename T>
-class JsonArrAttributeAccessor
+struct ContainerTraits<std::vector<T> >
 {
-    public:
-    void serialize(std::vector<T> const& src, std::ostream& stream) const
-    {
-        if (!src.empty())
-        {
-            typename std::vector<T>::const_iterator loop = src.begin();
-            stream << jsonInternalExport(*loop);
-
-            for(++loop; loop != src.end(); ++loop)
-            {
-                stream << "," << jsonInternalExport(*loop);
-            }
-        }
-    }
-    std::auto_ptr<ThorsAnvil::Json::SaxAction>      action(std::vector<T>& dst) const
-    {
-        std::auto_ptr<ThorsAnvil::Json::SaxAction>  action(new_JsonImportAction<typename JsonSerializeTraits<T>::SerializeInfo>(dst));
-        return action;
-    }
+    static bool const isConstContainer  = false;
+    typedef     T               DataType;
 };
+
 
 template<typename T>
 struct JsonSerializeTraits<std::vector<T> >
 {
     static JsonSerializeType const  type    = Array;
-    typedef std::vector<T>                          LocalType;
-    typedef JsonArrAttributeAccessor<T>             Accessor;
+
+    typedef std::vector<T>                              LocalType;
+    typedef JsonContainerAttributeAccessor<LocalType>   Accessor;
     THORSANVIL_SERIALIZE_JsonGenericArrAttributeAccess(LocalType, Accessor);
-    typedef boost::mpl::vector<genericAccessor>     SerializeInfo;
+    typedef boost::mpl::vector<genericAccessor>         SerializeInfo;
 };
 
 

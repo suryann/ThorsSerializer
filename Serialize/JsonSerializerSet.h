@@ -15,6 +15,7 @@ namespace ThorsAnvil
 template<typename T>
 struct ContainerTraits<std::set<T> >
 {
+    static bool const isConstContainer  = true;
     typedef     T               DataType;
     typedef     T               ValueType;
 };
