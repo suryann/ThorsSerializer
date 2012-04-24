@@ -28,7 +28,7 @@
     template<>
     struct JsonSerializeTraits<MyClass>
     {   
-        static JsonSerializeType const  type    = Array;
+        static JsonSerializeType const  type    = Map;
 
         THORSANVIL_SERIALIZE_JsonAttribute(MyClass, data1);
         THORSANVIL_SERIALIZE_JsonAttribute(MyClass, data2);
