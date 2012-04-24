@@ -106,6 +106,24 @@ TEST(JsonSerialize, DeQueOfVector)
     std::string result  = testAction<std::deque<std::vector<int> > >(input);
     ValidateSerializedStrings(input, result);
 }
+TEST(JsonSerialize, ListOfPOD)
+{
+    std::string input   = "[ 1,2,3,4, 4,5,6,7, 12,23,34]";
+    std::string result  = testAction<std::list<int> >(input);
+    ValidateSerializedStrings(input, result);
+}
+TEST(JsonSerialize, ListOfVector)
+{
+    std::string input   = "[ [1,2,3,4], [4,5,6,7], [12,23,34]]";
+    std::string result  = testAction<std::list<std::vector<int> > >(input);
+    ValidateSerializedStrings(input, result);
+}
+TEST(JsonSerialize, ListOfMap)
+{
+    std::string input   = "[ {\"a\":1, \"b\": 2}, {\"g\": 45, \"h\": 45}]";
+    std::string result  = testAction<std::list<std::map<std::string, int> > >(input);
+    ValidateSerializedStrings(input, result);
+}
 
 
 class EmptyJsonClass
