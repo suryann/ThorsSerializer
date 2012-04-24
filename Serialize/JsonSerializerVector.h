@@ -32,16 +32,6 @@ class JsonArrImportAction: public ThorsAnvil::Json::SaxAction
         }
 };
 
-template<typename T, typename A, typename RegisterKey>
-struct JsonSerialize<std::vector<T>, A, RegisterKey>
-{
-    static void activate(JsonSerializeItem<std::vector<T>, A, RegisterKey> const& item, std::ostream& stream, std::vector<T> const& src)
-    {
-        item.accessor.serialize(src, stream);
-    }
-};
-
-
 template<typename SerializeInfo, typename T>
 class JsonArrImportAction<SerializeInfo, T, false>: public ThorsAnvil::Json::SaxAction
 {

@@ -131,15 +131,6 @@ class JsonMapAttributeAccessor<std::map<std::string, V> >
     }
 };
 
-template<typename K, typename V, typename A, typename RegisterKey>
-struct JsonSerialize<std::map<K,V>, A, RegisterKey>
-{
-    static void activate(JsonSerializeItem<std::map<K,V>, A, RegisterKey> const& item, std::ostream& stream, std::map<K,V> const& src)
-    {
-        item.accessor.serialize(src, stream);
-    }
-};
-
 
         }
     }
