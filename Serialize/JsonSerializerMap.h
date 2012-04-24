@@ -22,6 +22,15 @@ struct ContainerTraits<std::map<K,V> >
     typedef     std::pair<K,V>  ValueType;
 };
 
+template<typename V, typename A, typename RegisterKey>
+struct JsonSerialize<std::map<std::string,V>, A, RegisterKey, Map>
+{
+    static void activate(JsonSerializeItem<std::map<std::string,V>, A, RegisterKey> const& item, std::ostream& stream, std::map<std::string,V> const& src)
+    {
+        item.accessor.serialize(src, stream);
+    }
+};
+
 template<typename K, typename V>
 struct JsonSerializeTraits<std::map<K, V> >
 {

@@ -212,8 +212,12 @@ class MPLForEachActivateItem
  *          THORSANVIL_SERIALIZE_JsonAttributeAccess
  *  See the notes by these macros for details
  */
+template<typename T, typename A, typename RegisterKey, JsonSerializeType type = JsonSerializeTraits<T>::type>
+struct JsonSerialize;
+
+
 template<typename T, typename A, typename RegisterKey>
-struct JsonSerialize
+struct JsonSerialize<T, A, RegisterKey, Map>
 {
     static void activate(JsonSerializeItem<T, A, RegisterKey> const& item, std::ostream& stream, T const& src)
     {
@@ -224,7 +228,16 @@ struct JsonSerialize
         item.accessor.serialize(src, stream);
     }
 };
-template<typename T, typename A,typename RegisterKey>
+template<typename C, typename A, typename RegisterKey>
+struct JsonSerialize<C, A, RegisterKey, Array>
+{
+    static void activate(JsonSerializeItem<C, A, RegisterKey> const& item, std::ostream& stream, C const& src)
+    {
+        item.accessor.serialize(src, stream);
+    }
+};
+
+template<typename T, typename A,typename RegisterKey, JsonSerializeType type = JsonSerializeTraits<T>::type>
 struct JsonDeSerialize
 {
     static void activate(JsonSerializeItem<T, A, RegisterKey> const& item, ThorsAnvil::Json::ScannerSax& parser, T& dst)
