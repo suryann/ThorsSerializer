@@ -24,10 +24,10 @@ template<typename T>
 struct JsonSerializeTraits<std::set<T> >
 {
     static JsonSerializeType const  type    = Array;
-    typedef std::set<T>                             LocalType;
-    typedef JsonMapAttributeAccessor<LocalType>     Accessor;
+    typedef std::set<T>                                 LocalType;
+    typedef JsonContainerAttributeAccessor<LocalType>   Accessor;
     THORSANVIL_SERIALIZE_JsonGenericArrAttributeAccess(LocalType, Accessor);
-    typedef boost::mpl::vector<genericAccessor>     SerializeInfo;
+    typedef boost::mpl::vector<genericAccessor>         SerializeInfo;
 };
 
 

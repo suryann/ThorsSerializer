@@ -16,7 +16,7 @@ template<typename C>
 struct ContainerTraits;
 
 template<typename SerializeInfo, typename C, bool EnablePod = boost::is_fundamental<typename ContainerTraits<C>::DataType>::value>
-class JsonMapImportAction: public ThorsAnvil::Json::SaxAction
+class JsonContainerImportAction: public ThorsAnvil::Json::SaxAction
 {
     typedef C                                       LocalType;
     typedef typename ContainerTraits<C>::ValueType  ValueType;
@@ -24,7 +24,7 @@ class JsonMapImportAction: public ThorsAnvil::Json::SaxAction
     ValueType                   nextValue;
 
     public:
-        JsonMapImportAction(LocalType& dst)
+        JsonContainerImportAction(LocalType& dst)
             : destination(dst)
         {}
 
@@ -39,11 +39,11 @@ class JsonMapImportAction: public ThorsAnvil::Json::SaxAction
         }
 };
 template<typename SerializeInfo, typename T>
-class JsonMapImportAction<SerializeInfo, std::set<T>, true>: public ThorsAnvil::Json::SaxAction
+class JsonContainerImportAction<SerializeInfo, std::set<T>, true>: public ThorsAnvil::Json::SaxAction
 {
     std::set<T>&            destination;
     public:
-        JsonMapImportAction(std::set<T>& dst)
+        JsonContainerImportAction(std::set<T>& dst)
             : destination(dst)
         {}
 
@@ -56,11 +56,11 @@ class JsonMapImportAction<SerializeInfo, std::set<T>, true>: public ThorsAnvil::
         }
 };
 template<typename SerializeInfo, typename V>
-class JsonMapImportAction<SerializeInfo, std::map<std::string,V>, true>: public ThorsAnvil::Json::SaxAction
+class JsonContainerImportAction<SerializeInfo, std::map<std::string,V>, true>: public ThorsAnvil::Json::SaxAction
 {
     std::map<std::string,V>&            destination;
     public:
-        JsonMapImportAction(std::map<std::string,V>& dst)
+        JsonContainerImportAction(std::map<std::string,V>& dst)
             : destination(dst)
         {}
 
@@ -73,11 +73,11 @@ class JsonMapImportAction<SerializeInfo, std::map<std::string,V>, true>: public 
         }
 };
 template<typename SerializeInfo, typename V>
-class JsonMapImportAction<SerializeInfo, std::map<std::string, V>, false>: public ThorsAnvil::Json::SaxAction
+class JsonContainerImportAction<SerializeInfo, std::map<std::string, V>, false>: public ThorsAnvil::Json::SaxAction
 {
     std::map<std::string,V>&            destination;
     public:
-        JsonMapImportAction(std::map<std::string,V>& dst)
+        JsonContainerImportAction(std::map<std::string,V>& dst)
             : destination(dst)
         {}
 
@@ -95,14 +95,14 @@ class JsonMapImportAction<SerializeInfo, std::map<std::string, V>, false>: publi
 template<typename SerializeInfo, typename C>
 ThorsAnvil::Json::SaxAction* new_JsonImportAction(C& dst)
 {
-    return new JsonMapImportAction<SerializeInfo,C>(dst);
+    return new JsonContainerImportAction<SerializeInfo,C>(dst);
 }
 
 template<typename C>
-class JsonMapAttributeAccessor;
+class JsonContainerAttributeAccessor;
 
 template<typename T>
-class JsonMapAttributeAccessor<std::set<T> >
+class JsonContainerAttributeAccessor<std::set<T> >
 {
     public:
     void serialize(std::set<T> const& src, std::ostream& stream) const
@@ -128,7 +128,7 @@ class JsonMapAttributeAccessor<std::set<T> >
 
 
 template<typename K, typename V>
-class JsonMapAttributeAccessor<std::map<K,V> >
+class JsonContainerAttributeAccessor<std::map<K,V> >
 {
     public:
     void serialize(std::map<K,V> const& src, std::ostream& stream) const
@@ -151,7 +151,7 @@ class JsonMapAttributeAccessor<std::map<K,V> >
     }
 };
 template<typename V>
-class JsonMapAttributeAccessor<std::map<std::string, V> >
+class JsonContainerAttributeAccessor<std::map<std::string, V> >
 {
     public:
     void serialize(std::map<std::string,V> const& src, std::ostream& stream) const
