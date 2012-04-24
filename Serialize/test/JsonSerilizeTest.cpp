@@ -79,8 +79,8 @@ namespace ThorsAnvil { namespace Serialize { namespace Json {
 template<>
 struct JsonSerializeTraits<EmptyJsonClass>
 {
-    typedef void                  SerializeInfo;
     static JsonSerializeType const  type    = Map;
+    typedef void                  SerializeInfo;
 };
 }}}
 
@@ -102,9 +102,9 @@ namespace ThorsAnvil { namespace Serialize { namespace Json {
 template<>
 struct JsonSerializeTraits<OneMemberJsonClass>
 {
+    static  JsonSerializeType const       type    = Map;
     THORSANVIL_SERIALIZE_JsonAttribute(OneMemberJsonClass, value);
     typedef boost::mpl::vector<value>   SerializeInfo;
-    static  JsonSerializeType const       type    = Map;
 };
 }}}
 
@@ -124,9 +124,9 @@ namespace ThorsAnvil { namespace Serialize { namespace Json {
 template<>
 struct JsonSerializeTraits<NestedJsonTest>
 {
+    static  JsonSerializeType const       type    = Map;
     THORSANVIL_SERIALIZE_JsonAttribute(NestedJsonTest, nested);
     typedef boost::mpl::vector<nested>   SerializeInfo;
-    static  JsonSerializeType const       type    = Map;
 };
 }}}
 
@@ -148,9 +148,9 @@ namespace ThorsAnvil { namespace Serialize { namespace Json {
 template<>
 struct JsonSerializeTraits<TestFloat>
 {
+    static  JsonSerializeType const       type    = Map;
     THORSANVIL_SERIALIZE_JsonAttribute(TestFloat, value);
     typedef boost::mpl::vector<value>   SerializeInfo;
-    static  JsonSerializeType const       type    = Map;
 };
 }}}
 
@@ -172,9 +172,9 @@ namespace ThorsAnvil { namespace Serialize { namespace Json {
 template<>
 struct JsonSerializeTraits<TestDouble>
 {
+    static  JsonSerializeType const       type    = Map;
     THORSANVIL_SERIALIZE_JsonAttribute(TestDouble, value);
     typedef boost::mpl::vector<value>   SerializeInfo;
-    static  JsonSerializeType const       type    = Map;
 };
 }}}
 
@@ -197,9 +197,9 @@ namespace ThorsAnvil { namespace Serialize { namespace Json {
 template<>
 struct JsonSerializeTraits<TestShort>
 {
+    static  JsonSerializeType const       type    = Map;
     THORSANVIL_SERIALIZE_JsonAttribute(TestShort, value);
     typedef boost::mpl::vector<value>   SerializeInfo;
-    static  JsonSerializeType const       type    = Map;
 };
 }}}
 
@@ -221,9 +221,9 @@ namespace ThorsAnvil { namespace Serialize { namespace Json {
 template<>
 struct JsonSerializeTraits<TestInt>
 {
+    static  JsonSerializeType const       type    = Map;
     THORSANVIL_SERIALIZE_JsonAttribute(TestInt, value);
     typedef boost::mpl::vector<value>   SerializeInfo;
-    static  JsonSerializeType const       type    = Map;
 };
 }}}
 
@@ -245,9 +245,9 @@ namespace ThorsAnvil { namespace Serialize { namespace Json {
 template<>
 struct JsonSerializeTraits<TestLong>
 {
+    static  JsonSerializeType const       type    = Map;
     THORSANVIL_SERIALIZE_JsonAttribute(TestLong, value);
     typedef boost::mpl::vector<value>   SerializeInfo;
-    static  JsonSerializeType const       type    = Map;
 };
 }}}
 
@@ -270,9 +270,9 @@ namespace ThorsAnvil { namespace Serialize { namespace Json {
 template<>
 struct JsonSerializeTraits<TestLongLong>
 {
+    static  JsonSerializeType const       type    = Map;
     THORSANVIL_SERIALIZE_JsonAttribute(TestLongLong, value);
     typedef boost::mpl::vector<value>   SerializeInfo;
-    static  JsonSerializeType const       type    = Map;
 };
 }}}
 
@@ -295,9 +295,9 @@ namespace ThorsAnvil { namespace Serialize { namespace Json {
 template<>
 struct JsonSerializeTraits<TestUnsignedShort>
 {
+    static  JsonSerializeType const       type    = Map;
     THORSANVIL_SERIALIZE_JsonAttribute(TestUnsignedShort, value);
     typedef boost::mpl::vector<value>   SerializeInfo;
-    static  JsonSerializeType const       type    = Map;
 };
 }}}
 
@@ -319,9 +319,9 @@ namespace ThorsAnvil { namespace Serialize { namespace Json {
 template<>
 struct JsonSerializeTraits<TestUnsignedInt>
 {
+    static  JsonSerializeType const       type    = Map;
     THORSANVIL_SERIALIZE_JsonAttribute(TestUnsignedInt, value);
     typedef boost::mpl::vector<value>   SerializeInfo;
-    static  JsonSerializeType const       type    = Map;
 };
 }}}
 
@@ -343,9 +343,9 @@ namespace ThorsAnvil { namespace Serialize { namespace Json {
 template<>
 struct JsonSerializeTraits<TestUnsignedLong>
 {
+    static  JsonSerializeType const       type    = Map;
     THORSANVIL_SERIALIZE_JsonAttribute(TestUnsignedLong, value);
     typedef boost::mpl::vector<value>   SerializeInfo;
-    static  JsonSerializeType const       type    = Map;
 };
 }}}
 
@@ -368,9 +368,9 @@ namespace ThorsAnvil { namespace Serialize { namespace Json {
 template<>
 struct JsonSerializeTraits<TestUnsignedLongLong>
 {
+    static  JsonSerializeType const       type    = Map;
     THORSANVIL_SERIALIZE_JsonAttribute(TestUnsignedLongLong, value);
     typedef boost::mpl::vector<value>   SerializeInfo;
-    static  JsonSerializeType const       type    = Map;
 };
 }}}
 
@@ -394,9 +394,9 @@ namespace ThorsAnvil { namespace Serialize { namespace Json {
 template<>
 struct JsonSerializeTraits<TestBool>
 {
+    static  JsonSerializeType const       type    = Map;
     THORSANVIL_SERIALIZE_JsonAttribute(TestBool, value);
     typedef boost::mpl::vector<value>   SerializeInfo;
-    static  JsonSerializeType const       type    = Map;
 };
 }}}
 
@@ -425,9 +425,9 @@ namespace ThorsAnvil { namespace Serialize { namespace Json {
 template<>
 struct JsonSerializeTraits<TestString>
 {
+    static  JsonSerializeType const       type    = Map;
     THORSANVIL_SERIALIZE_JsonAttribute(TestString, value);
     typedef boost::mpl::vector<value>   SerializeInfo;
-    static  JsonSerializeType const       type    = Map;
 };
 }}}
 
@@ -449,9 +449,9 @@ namespace ThorsAnvil { namespace Serialize { namespace Json {
 template<>
 struct JsonSerializeTraits<TestPointer>
 {
+    static  JsonSerializeType const       type    = Map;
     THORSANVIL_SERIALIZE_JsonAttribute(TestPointer, value);
     typedef boost::mpl::vector<value>   SerializeInfo;
-    static  JsonSerializeType const       type    = Map;
 };
 }}}
 
