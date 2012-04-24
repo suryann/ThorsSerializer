@@ -22,6 +22,7 @@
 #include "JsonSerializerSet.h"
 #include "JsonSerializerVector.h"
 #include "JsonSerializerDeQue.h"
+#include "JsonSerializerList.h"
 
 namespace ThorsAnvil
 {
