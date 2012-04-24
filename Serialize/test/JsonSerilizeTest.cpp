@@ -70,6 +70,12 @@ TEST(JsonSerialize, JsonArrayOfMap)
     std::string result  = testAction<std::vector<std::map<std::string, int> > >(input);
     ValidateSerializedStrings(input, result);
 }
+TEST(JsonSerialize, SetOfPOD)
+{
+    std::string input   = "[ 1, 2, 3, 4, 5, 6 ]";
+    std::string result  = testAction<std::set<int> >(input);
+    ValidateSerializedStrings(input, result);
+}
 
 
 class EmptyJsonClass
