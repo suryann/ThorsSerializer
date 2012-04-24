@@ -72,19 +72,23 @@ ActionRefNote ScannerSax::registerActionOnAllMapItems(std::auto_ptr<SaxAction> a
 ActionRefNote ScannerSax::registerAction(std::string const& mapItem, std::auto_ptr<SaxAction> action)
 {
     SaxAction*&  location    = mapActions.front()[mapItem];
-    delete location;    // If we are overwriting an old value make sure we delete it
+    std::auto_ptr<SaxAction>  oldLocation(location);
     location    = action.release();
     return &location;
 }
 
 ActionRefNote ScannerSax::registerActionOnAllArrItems(std::auto_ptr<SaxAction> action)
 {
-    return registerAction(-1, action);
+    SaxAction*&  location    = arrActions.front().map[-1];
+    std::auto_ptr<SaxAction>  oldLocation(location);
+    location    = action.release();
+    return &location;
 }
-ActionRefNote ScannerSax::registerAction(int index, std::auto_ptr<SaxAction> action)
+ActionRefNote ScannerSax::registerActionNext(std::auto_ptr<SaxAction> action)
 {
-    SaxAction*&  location    = arrActions.front()[index];
-    delete location;    // If we are overwriting an old value make sure we delete it
+    int          index       = arrActions.front().max++;
+    SaxAction*&  location    = arrActions.front().map[index];
+    std::auto_ptr<SaxAction>  oldLocation(location);
     location    = action.release();
     return &location;
 }

@@ -112,11 +112,14 @@ TEST(ScannerSax, ShiftReduceScanArrayMiss)
     bool                                            preAction;
     bool                                            action;
     bool                                            value;
+    std::auto_ptr<ThorsAnvil::Json::SaxAction>      emptyAction;
     std::auto_ptr<ThorsAnvil::Json::SaxAction>      saxAction(new TestAction<bool>(count, preAction, action, value));
 
     std::stringstream                               json("[ true ]");
     ThorsAnvil::Json::ScannerSax                    scanner;
-    scanner.registerAction(2, saxAction);
+    scanner.registerActionNext(emptyAction);
+    scanner.registerActionNext(emptyAction);
+    scanner.registerActionNext(saxAction);
     scanner.parse<yy::ParserShiftReduce>(json);
 
     ASSERT_TRUE(preAction == false);
@@ -129,11 +132,13 @@ TEST(ScannerSax, ShiftReduceScanArrayHit)
     bool                                            preAction;
     bool                                            action;
     bool                                            value;
+    std::auto_ptr<ThorsAnvil::Json::SaxAction>      emptyAction;
     std::auto_ptr<ThorsAnvil::Json::SaxAction>      saxAction(new TestAction<bool>(count, preAction, action, value));
 
     std::stringstream                               json("[ 512, true ]");
     ThorsAnvil::Json::ScannerSax                    scanner;
-    scanner.registerAction(1, saxAction);
+    scanner.registerActionNext(emptyAction);
+    scanner.registerActionNext(saxAction);
     scanner.parse<yy::ParserShiftReduce>(json);
 
     ASSERT_TRUE(count == 1);
@@ -222,11 +227,14 @@ TEST(ScannerSax, RecursiveScanArrayMiss)
     bool                                            preAction;
     bool                                            action;
     bool                                            value;
+    std::auto_ptr<ThorsAnvil::Json::SaxAction>      emptyAction;
     std::auto_ptr<ThorsAnvil::Json::SaxAction>      saxAction(new TestAction<bool>(count, preAction, action, value));
 
     std::stringstream                               json("[ false ]");
     ThorsAnvil::Json::ScannerSax                    scanner;
-    scanner.registerAction(2, saxAction);
+    scanner.registerActionNext(emptyAction);
+    scanner.registerActionNext(emptyAction);
+    scanner.registerActionNext(saxAction);
     scanner.parse<ThorsAnvil::Json::ParserRecursive>(json);
 
     ASSERT_TRUE(count == 0);
@@ -240,11 +248,13 @@ TEST(ScannerSax, RecursiveScanArrayHit)
     bool                                            preAction;
     bool                                            action;
     bool                                            value;
+    std::auto_ptr<ThorsAnvil::Json::SaxAction>      emptyAction;
     std::auto_ptr<ThorsAnvil::Json::SaxAction>      saxAction(new TestAction<bool>(count, preAction, action, value));
 
     std::stringstream                               json("[ 512, false ]");
     ThorsAnvil::Json::ScannerSax                    scanner;
-    scanner.registerAction(1, saxAction);
+    scanner.registerActionNext(emptyAction);
+    scanner.registerActionNext(saxAction);
     scanner.parse<ThorsAnvil::Json::ParserRecursive>(json);
 
     ASSERT_TRUE(count == 1);
@@ -270,7 +280,10 @@ TEST(ScannerSax, ReplaceAction)
 
     ThorsAnvil::Json::ScannerSax                    scanner;
 
-    ThorsAnvil::Json::ActionRefNote actNote = scanner.registerAction(1, saxAction);
+    std::auto_ptr<ThorsAnvil::Json::SaxAction>      emptyAction;
+    scanner.registerActionNext(emptyAction);
+
+    ThorsAnvil::Json::ActionRefNote actNote = scanner.registerActionNext(saxAction);
     scanner.replaceAction(actNote, saxAction2);
 
     std::stringstream                               json("[ 512, 567 ]");
@@ -296,7 +309,7 @@ TEST(ScannerSax, DefaultArrayAction)
 
     ThorsAnvil::Json::ScannerSax                    scanner;
 
-    ThorsAnvil::Json::ActionRefNote actNote = scanner.registerAction(-1, saxAction);
+    ThorsAnvil::Json::ActionRefNote actNote = scanner.registerActionOnAllArrItems(saxAction);
 
     std::stringstream                               json("[ 512, 567 ]");
     scanner.parse<ThorsAnvil::Json::ParserRecursive>(json);
