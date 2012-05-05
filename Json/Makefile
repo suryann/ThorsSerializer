@@ -9,4 +9,7 @@ NOCOVERAGE				= Lexer.lex ParserShiftReduce.tab
 
 include ${THORSANVIL_ROOT}/build/tools/Makefile
 
+%/ParserShiftReduce.tab.o:  FILE_WARNING_FLAGS  += -Wno-parentheses
+
+
 

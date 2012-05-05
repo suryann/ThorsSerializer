@@ -2,7 +2,7 @@
 #include "gtest/gtest.h"
 #include "LexerJson.h"
 #include "ParserInterface.h"
-#include "ParserShiftReduce.tab.hpp"
+#include "ParserShiftReduce.h"
 
 #include <boost/lexical_cast.hpp>
 #include <sstream>

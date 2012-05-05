@@ -2,7 +2,7 @@
 
 #include "ScannerSax.h"
 #include "LexerJson.h"
-#include "ParserShiftReduce.tab.hpp"
+#include "ParserShiftReduce.h"
 #include "ParserRecursive.h"
 
 #include <sstream>

@@ -1,7 +1,7 @@
 
 
 #include "ParserRecursive.h"
-#include "ParserShiftReduce.tab.hpp"
+#include "ParserShiftReduce.h"
 
 using namespace ThorsAnvil::Json;
 
