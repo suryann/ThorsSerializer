@@ -361,6 +361,6 @@ TEST(ScannerSax, GetNullValue)
     ASSERT_EQ(1, count);
     ASSERT_TRUE(preAction == true);
     ASSERT_TRUE(action == true);
-    ASSERT_EQ(false, value);
+    ASSERT_TRUE(false == value);
 }
 

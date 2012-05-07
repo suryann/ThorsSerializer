@@ -2,6 +2,9 @@
 
 ROOT=`pwd`
 
+cd ../build
+mkdir lib bin include include3rd
+
 # Need this to unpack some of the packages.
 # sudo apt-get install unzip
 
