@@ -7,6 +7,9 @@
 
 #include <string>
 #include <iterator>
+
+#include <stdint.h>
+
 template<typename C>
 struct TransformJsonStringIter: std::iterator<std::input_iterator_tag, char, ptrdiff_t, char*,char&>
 {

@@ -59,7 +59,7 @@
  *      std::cin  >> jsonImport(vec);
  */
 #include "json/ScannerSax.h"
-#include "json/ParserShiftReduce.tab.hpp"
+#include "json/ParserShiftReduce.h"
 #include <boost/mpl/at.hpp>
 #include <boost/mpl/pop_front.hpp>
 #include <boost/mpl/for_each.hpp>

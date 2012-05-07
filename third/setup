@@ -2,6 +2,14 @@
 
 ROOT=`pwd`
 
+# Need this to unpack some of the packages.
+# sudo apt-get install unzip
+
+#
+# Need this for building
+sudo apt-get install bison flex
+sudo apt-get install libboost-dev libboost-doc
+
  #
  # Change this as required to point at the root of ThorsAnvil code
 THORSANVIL_ROOT=`dirname ${ROOT}`
@@ -11,7 +19,7 @@ THORSANVIL_ROOT=`dirname ${ROOT}`
  # to the directory containing 'boost' If not set it will search for the
  # boost tar.gz archive in the current directory and use that
  #
-USE_INSTALLED_BOOST=
+USE_INSTALLED_BOOST=/usr/include
 
 
  #
@@ -23,7 +31,7 @@ BUILD_BOOST=0
  # Set to 1 to build boost logging.
  # Note: this implies building the boost lib
  #
-BOOST_LOG=1
+BOOST_LOG=0
 
  #
  # If you want to use the unit test automatically you need this
