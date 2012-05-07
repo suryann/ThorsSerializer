@@ -13,6 +13,7 @@
 # A name with a *.app extension is an executable			(the app will NOT be part of the final name)
 # A name with a *.a extension is a static library			(the lib prefix will automatically be added)
 # A name with a *.slib extension is a shared library		(the lib prefix will automatically be added. And platform specific suffix will replace slib)
+# A name with a *.dir  extension builds a subdirectory
 #		Note: This will build a shared library with the appropriate platform specific extension
 #			  In the directory TARGET_Mode (debug/release)
 #
@@ -82,15 +83,15 @@ COMPILER_gpp_4_4_3_FLAGS	= -Wno-unreachable-code
 
 WARNING_FLAGS				=	$(WARNING_FLAGS_$(TEST_STATE)) $(WARNING_FLAGS_$(TARGET_MODE)) $(FILE_WARNING_FLAGS)
 WARNING_FLAGS_PLOP			=	-Wall -Wextra -Wshadow -Weffc++ -Wstrict-aliasing -ansi -pedantic -Werror -Wunreachable-code -Wno-unreachable-code -Wno-long-long
-WARNING_FLAGS_				=	-Wall -Wextra                   -Wstrict-aliasing -ansi -pedantic -Werror -Wunreachable-code -Wno-unreachable-code -Wno-long-long
+WARNING_FLAGS_				=	-Wall -Wextra -Wstrict-aliasing -ansi -pedantic -Werror -Wunreachable-code -Wno-long-long
 WARNING_FLAGS_coverage		=	-DCOVERAGE_TEST
 
 
-THORSANVIL_FLAGS			=	-I$(THORSANVIL_ROOT)/build/include
-THORSANVIL_LIBS				=	-L$(THORSANVIL_ROOT)/build/lib $(foreach lib, $(LINK_LIBS), -l$(lib)$(BUILD_EXTENSION))
+THORSANVIL_FLAGS			=	-I$(PREFIX_INC)
+THORSANVIL_LIBS				=	-L$(PREFIX_LIB) $(foreach lib, $(LINK_LIBS), -l$(lib)$(BUILD_EXTENSION))
 
 
-BOOST_FLAGS					=	-isystem $(THORSANVIL_ROOT)/build/include3rd
+BOOST_FLAGS					=	-isystem $(PREFIX_INC3RD)
 BOOST_LIBS					=
 
 
@@ -109,7 +110,7 @@ OPTIMIZER_FLAGS_coverage	=	-g -fprofile-arcs -ftest-coverage
 
 CC							=	$(CXX)
 CXXFLAGS					+=	-fPIC $(WARNING_FLAGS) $(THORSANVIL_FLAGS) $(BOOST_FLAGS) $(TEST_FLAGS) $(OPTIMIZER_FLAGS) $(ENVIRONMENT_FLAGS)
-LDLIBS						+=	$(THORSANVIL_LIBS) $(BOOST_LIBS) $(TEST_LIBS) $(OPTIMIZER_LIBS)
+ALL_LDLIBS					+=	$(THORSANVIL_LIBS) $(BOOST_LIBS) $(TEST_LIBS) $(OPTIMIZER_LIBS)
 
 
 
@@ -117,6 +118,7 @@ PREFIX						?=	$(THORSANVIL_ROOT)/build
 PREXIX_BIN					?=	$(PREFIX)/bin
 PREFIX_LIB					?=	$(PREFIX)/lib
 PREFIX_INC					?=	$(PREFIX)/include
+PREFIX_INC3RD				?=	$(PREFIX)/include3rd
 BUILD_EXTENSION				=	$(BUILD_EXTENSION_$(TARGET_MODE))
 BUILD_EXTENSION_debug		=	D
 BUILD_EXTENSION_coverage	=	D
@@ -137,9 +139,9 @@ install_debug:	test try_install_head install_Dodebug
 install_release:test try_install_head install_Dorelease
 	
 install_Dodebug:
-	$(MAKE) TARGET_MODE=debug all doInstall
+	$(MAKE) PREFIX=$(PREFIX) TARGET_MODE=debug all doInstall
 install_Dorelease:
-	$(MAKE) TARGET_MODE=release all doInstall
+	$(MAKE) PREFIX=$(PREFIX) TARGET_MODE=release all doInstall
 
 doInstall:	try_install_app try_install_lib
 
@@ -166,19 +168,19 @@ clean: test_clean
 veryclean: clean test_veryclean
 	$(RM) -rf debug release coverage
 test:
-	@-rm -rf coverage/libobject.a coverage/*.gcov coverage/*.gcda test/coverage/unittest.app
+	@-$(RM) -rf coverage/libobject.a coverage/*.gcov coverage/*.gcda test/coverage/unittest.app
 	@echo $(call section_title,Building Objects for Testing and Coverage)
-	@$(MAKE) TARGET_MODE=coverage objectarch
+	$(MAKE) PREFIX=$(PREFIX) TARGET_MODE=coverage objectarch
 	@echo $(call section_title,Building Unit Tests)
-	@$(MAKE) TARGET_MODE=coverage -C test -f ../Makefile THORSANVIL_ROOT=$(THORSANVIL_ROOT) TEST_STATE=on TARGET=unittest.app
+	$(MAKE) PREFIX=$(PREFIX) TARGET_MODE=coverage -C test -f ../Makefile THORSANVIL_ROOT=$(THORSANVIL_ROOT) TEST_STATE=on TARGET=unittest.app
 	@echo $(call section_title,Running Unit Tests)
 	@$(RUNTIME_SHARED_PATH_SET)=$(PREFIX_LIB) test/unittest
 	@echo
 	@echo
-	@echo $(MAKE) TARGET_MODE=coverage report_coverage COVERAGE=$(COVERAGE)
+	@echo $(MAKE) PREFIX=$(PREFIX) TARGET_MODE=coverage report_coverage COVERAGE=$(COVERAGE)
 	@echo
 	@echo
-	@$(MAKE) TARGET_MODE=coverage coverage COVERAGE=$(COVERAGE)
+	@$(MAKE) PREFIX=$(PREFIX) TARGET_MODE=coverage coverage COVERAGE=$(COVERAGE)
 
 install_app_%:	NotImplemented.installapp
 	@(CP) $(TARGET_MODE)/$* $(PREFIX_BIN)/$*$(BUILD_EXTENSION)
@@ -192,7 +194,7 @@ install_head_%: $(PREFIX_INC)/$(basename $(TARGET)).Dir
 	@echo $(call subsection_title, Install Header $*)
 
 test_%:
-	@if [ -d test ]; then $(MAKE) -C test -f ../Makefile THORSANVIL_ROOT=$(THORSANVIL_ROOT) TEST_STATE=on TARGET=unittest.app $*; fi
+	@if [ -d test ]; then $(MAKE) -C test -f ../Makefile THORSANVIL_ROOT=$(THORSANVIL_ROOT) PREFIX=$(PREFIX) TEST_STATE=on TARGET=unittest.app $*; fi
 
 coverage:	$(GCOV_REPORT) $(patsubst coverage/%.gcov, report_coverage_%, $(GCOV_REPORT))
 	@left=`cat $(GCOV_ACTUAL) | grep '####' | wc -l`;						\
@@ -200,7 +202,7 @@ coverage:	$(GCOV_REPORT) $(patsubst coverage/%.gcov, report_coverage_%, $(GCOV_R
 	 res=`echo "$${left} > ($${right}  * 0.2)"  | bc`;				\
 	 if [ $${res} -ne 0 ]; then										\
 		echo $(RED_ERROR) $(call colour_text, PURPLE, Code Coverage does not exceed 80% of total);	\
-		echo "Use: 'make test COVERAGE=On' to get details about coverage";							\
+		echo "Use: '$(MAKE) test PREFIX=$(PREFIX) COVERAGE=On' to get details about coverage";							\
 	 else															\
 		echo $(GREEN_OK) Code Coverage Passed;						\
 	 fi
@@ -223,9 +225,9 @@ report_coverage_%.tpp:
 	@if [ "$(COVERAGE)" = "$*.cpp" ]; then cat coverage/$*.tpp.gcov ; fi
 	
 debug:
-	@$(MAKE) TARGET_MODE=debug	 all
+	@$(MAKE) PREFIX=$(PREFIX) TARGET_MODE=debug	 all
 release:
-	@$(MAKE) TARGET_MODE=release all
+	@$(MAKE) PREFIX=$(PREFIX) TARGET_MODE=release all
 
 buildDir:	$(TARGET_MODE).Dir
 
@@ -255,35 +257,36 @@ xxlib:		buildDir Note_Building_(TARGET_MODE)/lib%.$(SO) $(TARGET_MODE)/lib%.$(SO
 	
 $(TARGET_MODE)/%.app:	$(OBJ) 
 	@echo "$(CC) -o $@"	| awk '{printf "%-80s", $$0}'
-	@$(CXX) -o $@ $(LDFLAGS) $(OBJ) $(LOADLIBES) $(LDLIBS) 2>&1 >>  makefile_tmp; \
+	@$(CXX) -o $@ $(LDFLAGS) $(OBJ) $(LOADLIBES) $(ALL_LDLIBS) $(LDLIBS) 2>&1 >>  makefile_tmp; \
 	if [ $$? != 0 ];									\
 	then												\
 		echo "Failed in building application";			\
 		echo $(RED_ERROR);								\
-		echo $(CXX) -o $@ $(LDFLAGS) $(OBJ) $(LOADLIBES) $(LDLIBS); \
+		echo $(CXX) -o $@ $(LDFLAGS) $(OBJ) $(LOADLIBES) $(ALL_LDLIBS) $(LDLIBS); \
 		echo "==================================================="; \
 		cat makefile_tmp;								\
 		exit 1;											\
 	else 												\
 		echo $(GREEN_OK);								\
-		rm makefile_tmp;								\
+		$(RM) makefile_tmp;								\
 	fi
-	@if [ ! -e $* ]; then ln -s $@ $*; fi
+	@$(RM) -f $*
+	@ln -s $@ $*
 
 $(TARGET_MODE)/lib%.$(SO):	$(OBJ)
 	@echo "$(CC) -shared -o $@"	| awk '{printf "%-80s", $$0}'
-	@$(CXX) -shared -o $@ $(LDFLAGS) $(OBJ) $(LOADLIBES) $(LDLIBS) 2>&1 >>  makefile_tmp; \
+	@$(CXX) -shared -o $@ $(LDFLAGS) $(OBJ) $(LOADLIBES) $(ALL_LDLIBS) $(LDLIBS) 2>&1 >>  makefile_tmp; \
 	if [ $$? != 0 ];									\
 	then												\
 		echo "Failed in building shared-lib";			\
 		echo $(RED_ERROR);								\
-		echo $(CXX) -shared -o $@ $(LDFLAGS) $(OBJ) $(LOADLIBES) $(LDLIBS); \
+		echo $(CXX) -shared -o $@ $(LDFLAGS) $(OBJ) $(LOADLIBES) $(ALL_LDLIBS) $(LDLIBS); \
 		echo "==================================================="; \
 		cat makefile_tmp;								\
 		exit 1;											\
 	else 												\
 		echo $(GREEN_OK);								\
-		rm makefile_tmp;								\
+		$(RM) makefile_tmp;								\
 	fi
 
 $(TARGET_MODE)/%.o: %.cpp
@@ -299,7 +302,7 @@ $(TARGET_MODE)/%.o: %.cpp
 		exit 1;											\
 	else 												\
 		echo $(GREEN_OK);								\
-		rm makefile_tmp;								\
+		$(RM) makefile_tmp;								\
 	fi
 
 %.tab.cpp: %.y
@@ -315,7 +318,7 @@ $(TARGET_MODE)/%.o: %.cpp
 		exit 1;											\
 	else 												\
 		echo $(GREEN_OK);								\
-		rm makefile_tmp;								\
+		$(RM) makefile_tmp;								\
 	fi
 
 %.lex.cpp: %.l
