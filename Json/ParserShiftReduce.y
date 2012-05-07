@@ -66,7 +66,7 @@ JsonObject              :   JsonMap                                 {pi.doneMap(
 
 JsonMap                 :   '{'                                     {pi.mapOpen();}
                             JsonMapValueListOpt
-                            '}'                                     {pi.mapClose();$$=$3}
+                            '}'                                     {pi.mapClose();$$=$3;}
 JsonMapValueListOpt     :                                           {$$ = pi.mapCreate();}
                         |   JsonMapValueList                        {$$ = $1;}
 JsonMapValueList        :   JsonMapValue                            {$$ = pi.mapCreate($1);}

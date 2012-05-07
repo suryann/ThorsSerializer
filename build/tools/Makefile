@@ -28,7 +28,10 @@ CXX				= $(CXX_$(TARGET_MODE))
 	
 CXX_debug		= g++
 CXX_release		= g++
-CXX_coverage	= g++-4.2
+CXX_coverage	= $(CXX_coverage_$(PLATFORM))
+
+CXX_coverage_Darwin	= g++-4.2
+CXX_coverage_Linux	= g++
 
 CP				= cp
 
@@ -77,9 +80,9 @@ COMPILER_SPECIFIC_FLAGS		= $(COMPILER_$(COMPILER_NAME)_$(COMPILER_VERSION)_FLAGS
 COMPILER_gpp_4_4_3_FLAGS	= -Wno-unreachable-code
 
 
-WARNING_FLAGS				=	$(WARNING_FLAGS_$(TEST_STATE)) $(WARNING_FLAGS_$(TARGET_MODE))
-WARNING_FLAGS_PLOP				=	-Wall -Wextra -Wshadow -Weffc++ -Wstrict-aliasing -ansi -pedantic -Werror -Wunreachable-code -Wno-unreachable-code -Wno-long-long
-WARNING_FLAGS_				=	-Wall -Wextra -Wstrict-aliasing -ansi -pedantic -Werror -Wunreachable-code -Wno-unreachable-code -Wno-long-long
+WARNING_FLAGS				=	$(WARNING_FLAGS_$(TEST_STATE)) $(WARNING_FLAGS_$(TARGET_MODE)) $(FILE_WARNING_FLAGS)
+WARNING_FLAGS_PLOP			=	-Wall -Wextra -Wshadow -Weffc++ -Wstrict-aliasing -ansi -pedantic -Werror -Wunreachable-code -Wno-unreachable-code -Wno-long-long
+WARNING_FLAGS_				=	-Wall -Wextra                   -Wstrict-aliasing -ansi -pedantic -Werror -Wunreachable-code -Wno-unreachable-code -Wno-long-long
 WARNING_FLAGS_coverage		=	-DCOVERAGE_TEST
 
 
@@ -317,7 +320,7 @@ $(TARGET_MODE)/%.o: %.cpp
 
 %.lex.cpp: %.l
 	@echo "$(LEX) $^" | awk '{printf "%-80s", $$0}'
-	@$(LEX) -t $< | sed 's/<stdout>/$*.lex.cpp/' > $@;	\
+	@$(LEX) -t $< | sed -e 's/<stdout>/$*.lex.cpp/' -e 's/extern "C" int isatty/\/\/ Removed extern "C" int isatty/' > $@;	\
 	if [ $$? != 0 ];									\
 	then												\
 		echo "Failed in Lexer Generator";				\

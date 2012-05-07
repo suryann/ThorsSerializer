@@ -6,7 +6,7 @@
 %{
 
 #define  IN_LEXER
-#include "ParserShiftReduce.tab.hpp"
+#include "ParserShiftReduce.h"
 #include "ParserInterface.h"
 
 %}

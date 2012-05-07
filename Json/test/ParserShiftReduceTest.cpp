@@ -1,6 +1,6 @@
 
 #include "gtest/gtest.h"
-#include "ParserShiftReduce.tab.hpp"
+#include "ParserShiftReduce.h"
 #include "ParserInterface.h"
 #include "LexerJson.h"
 #include <sstream>
