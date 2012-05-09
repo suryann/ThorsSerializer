@@ -9,6 +9,7 @@
 #include "ParserInterface.h"
 #include "LexerJson.h"
 #include <stdexcept>
+#include <sstream>
 
 using ThorsAnvil::Json::ParserInterface;
 using ThorsAnvil::Json::JsonValue;
@@ -109,6 +110,10 @@ int ThorsAnvil::Json::yylex(void*, LexerJson& lexer, ParserInterface& pi)
 
 void yy::ParserShiftReduce::error(yy::location const&, std::string const& msg)
 {
-    throw ThorsAnvil::Json::ParsingError(msg);
+    std::string         lastToken(lexer.YYText(), lexer.YYText() + lexer.YYLeng());
+    std::stringstream  extended;
+    extended << msg << " -> Last Token: " << lastToken << " At line: " << lexer.lineno();
+
+    throw ThorsAnvil::Json::ParsingError(extended.str());
 }
 
