@@ -10,8 +10,8 @@
 # 
 
 #
-# A name with a *.app extension is an executable			(the app will NOT be part of the final name)
-# A name with a *.a extension is a static library			(the lib prefix will automatically be added)
+# A name with a *.app  extension is an executable			(the app will NOT be part of the final name)
+# A name with a *.a    extension is a static library		(the lib prefix will automatically be added)
 # A name with a *.slib extension is a shared library		(the lib prefix will automatically be added. And platform specific suffix will replace slib)
 # A name with a *.dir  extension builds a subdirectory
 #		Note: This will build a shared library with the appropriate platform specific extension
@@ -40,8 +40,8 @@ CP				= cp
 # Add Files(without extension) that you do not want coverage metrics for
 NOCOVERAGE		+=
 
-
-CPP_SRC						= $(filter-out %.lex.cpp %.tab.cpp,$(wildcard *.cpp))
+APP_SRC						= $(patsubst %.app,%.cpp,$(TARGET))
+CPP_SRC						= $(filter-out %.lex.cpp %.tab.cpp $(APP_SRC),$(wildcard *.cpp))
 LEX_SRC						= $(wildcard *.l)
 YACC_SRC					= $(wildcard *.y)
 SRC							= $(patsubst %.y,%.tab.cpp,$(YACC_SRC)) $(patsubst %.l,%.lex.cpp,$(LEX_SRC)) $(CPP_SRC)
@@ -81,14 +81,14 @@ COMPILER_SPECIFIC_FLAGS		= $(COMPILER_$(COMPILER_NAME)_$(COMPILER_VERSION)_FLAGS
 COMPILER_gpp_4_4_3_FLAGS	= -Wno-unreachable-code
 
 
-WARNING_FLAGS				=	$(WARNING_FLAGS_$(TEST_STATE)) $(WARNING_FLAGS_$(TARGET_MODE)) $(FILE_WARNING_FLAGS)
-WARNING_FLAGS_PLOP			=	-Wall -Wextra -Wshadow -Weffc++ -Wstrict-aliasing -ansi -pedantic -Werror -Wunreachable-code -Wno-unreachable-code -Wno-long-long
+WARNING_FLAGS				=	$(WARNING_FLAGS_$(TEST_STATE)) $(WARNING_FLAGS_$(TARGET_MODE))
 WARNING_FLAGS_				=	-Wall -Wextra -Wstrict-aliasing -ansi -pedantic -Werror -Wunreachable-code -Wno-long-long
 WARNING_FLAGS_coverage		=	-DCOVERAGE_TEST
 
 
+expand						=	$(foreach lib, $(1), -l$(lib)$(BUILD_EXTENSION))
 THORSANVIL_FLAGS			=	-I$(PREFIX_INC)
-THORSANVIL_LIBS				=	-L$(PREFIX_LIB) $(foreach lib, $(LINK_LIBS), -l$(lib)$(BUILD_EXTENSION))
+THORSANVIL_LIBS				=	-L$(PREFIX_LIB) $(call expand,$(LINK_LIBS))
 
 
 BOOST_FLAGS					=	-isystem $(PREFIX_INC3RD)
@@ -115,7 +115,7 @@ ALL_LDLIBS					+=	$(THORSANVIL_LIBS) $(BOOST_LIBS) $(TEST_LIBS) $(OPTIMIZER_LIBS
 
 
 PREFIX						?=	$(THORSANVIL_ROOT)/build
-PREXIX_BIN					?=	$(PREFIX)/bin
+PREFIX_BIN					?=	$(PREFIX)/bin
 PREFIX_LIB					?=	$(PREFIX)/lib
 PREFIX_INC					?=	$(PREFIX)/include
 PREFIX_INC3RD				?=	$(PREFIX)/include3rd
@@ -132,7 +132,7 @@ BUILD_EXTENSION_coverage	=	D
 .PHONY:	all validate install objectarch clean veryclean test coverage
 
 all:	PrintDebug buildDir Note_Building_$(TARGET_MODE) $(TARGET)
-	@echo "Done"
+	@echo $(call colour_text, BLUE, "Done")
 validate:		test 
 install:		test try_install_head install_Dodebug install_Dorelease
 install_debug:	test try_install_head install_Dodebug
@@ -159,8 +159,8 @@ Note_%:
 %.cpp:	%.h
 	
 objectarch:	buildDir $(GCOV_OBJ)
-	@$(AR) -rv $(TARGET_MODE)/libobject.a $(GCOV_OBJ) 2>&1 >> /dev/null
-	@echo "Done"
+	@$(AR) -rv $(TARGET_MODE)/libobject.a $(GCOV_OBJ) 2>/dev/null
+	@echo $(call colour_text, BLUE, "Done")
 clean: test_clean
 	$(RM) $(OBJ) $(GCOV) 
 	$(RM) $(patsubst %.y,%.tab.cpp,$(YACC_SRC)) $(patsubst %.y,%.tab.hpp,$(YACC_SRC)) $(patsubst %.l,%.lex.cpp,$(LEX_SRC)) $(CLEAN_EXTRA)
@@ -170,39 +170,43 @@ veryclean: clean test_veryclean
 test:
 	@-$(RM) -rf coverage/libobject.a coverage/*.gcov coverage/*.gcda test/coverage/unittest.app
 	@echo $(call section_title,Building Objects for Testing and Coverage)
-	$(MAKE) PREFIX=$(PREFIX) TARGET_MODE=coverage objectarch
+	@$(MAKE) PREFIX=$(PREFIX) TARGET_MODE=coverage objectarch
 	@echo $(call section_title,Building Unit Tests)
-	$(MAKE) PREFIX=$(PREFIX) TARGET_MODE=coverage -C test -f ../Makefile THORSANVIL_ROOT=$(THORSANVIL_ROOT) TEST_STATE=on TARGET=unittest.app
+	@touch test/unittest.cpp
+	@$(MAKE) PREFIX=$(PREFIX) TARGET_MODE=coverage -C test -f ../Makefile THORSANVIL_ROOT=$(THORSANVIL_ROOT) TEST_STATE=on TARGET=unittest.app
+	@rm    test/unittest.cpp
 	@echo $(call section_title,Running Unit Tests)
-	@$(RUNTIME_SHARED_PATH_SET)=$(PREFIX_LIB) test/unittest
+	@$(RUNTIME_SHARED_PATH_SET)=$(PREFIX_LIB) test/coverage/unittest.app
 	@echo
 	@echo
-	@echo $(MAKE) PREFIX=$(PREFIX) TARGET_MODE=coverage report_coverage COVERAGE=$(COVERAGE)
+	@echo $(call colour_text, GRAY, $(MAKE) PREFIX=$(PREFIX) TARGET_MODE=coverage report_coverage COVERAGE=$(COVERAGE))
 	@echo
 	@echo
 	@$(MAKE) PREFIX=$(PREFIX) TARGET_MODE=coverage coverage COVERAGE=$(COVERAGE)
 
-install_app_%:	NotImplemented.installapp
-	@(CP) $(TARGET_MODE)/$* $(PREFIX_BIN)/$*$(BUILD_EXTENSION)
+install_app_%:
+	@$(CP) $(TARGET_MODE)/$*.app $(PREFIX_BIN)/$*$(BUILD_EXTENSION)
+	@echo $(call subsection_title, Install - $(TARGET_MODE) - $*$(BUILD_EXTENSION))
 
 install_lib_%:
 	@$(CP) $(TARGET_MODE)/lib$*.$(SO) $(PREFIX_LIB)/lib$*$(BUILD_EXTENSION).$(SO)
 	@echo $(call subsection_title, Install - $(TARGET_MODE) - lib$*$(BUILD_EXTENSION).$(SO))
 
-install_head_%: $(PREFIX_INC)/$(basename $(TARGET)).Dir
-	@$(CP) $* $(PREFIX_INC)/$(basename $(TARGET))/
+install_head_%: $(PREFIX_INC)/$(basename $(filter %.slib, $(TARGET))).Dir
+	@$(CP) $* $(PREFIX_INC)/$(basename $(filter %.slib, $(TARGET)))/
 	@echo $(call subsection_title, Install Header $*)
 
 test_%:
 	@if [ -d test ]; then $(MAKE) -C test -f ../Makefile THORSANVIL_ROOT=$(THORSANVIL_ROOT) PREFIX=$(PREFIX) TEST_STATE=on TARGET=unittest.app $*; fi
 
 coverage:	$(GCOV_REPORT) $(patsubst coverage/%.gcov, report_coverage_%, $(GCOV_REPORT))
-	@left=`cat $(GCOV_ACTUAL) | grep '####' | wc -l`;						\
-	 right=`cat $(GCOV_ACTUAL)| grep -v '\-:' | wc -l`;					\
+	@left=`cat $(GCOV_ACTUAL) | grep '####' | wc -l`;				\
+	 right=`cat $(GCOV_ACTUAL)| grep -v '\-:' | wc -l`;				\
 	 res=`echo "$${left} > ($${right}  * 0.2)"  | bc`;				\
 	 if [ $${res} -ne 0 ]; then										\
 		echo $(RED_ERROR) $(call colour_text, PURPLE, Code Coverage does not exceed 80% of total);	\
-		echo "Use: '$(MAKE) test PREFIX=$(PREFIX) COVERAGE=On' to get details about coverage";							\
+		echo "Use: '$(MAKE) test PREFIX=$(PREFIX) COVERAGE=On' to get details about coverage";		\
+		exit 1;														\
 	 else															\
 		echo $(GREEN_OK) Code Coverage Passed;						\
 	 fi
@@ -247,22 +251,23 @@ buildDir:	$(TARGET_MODE).Dir
 
 	
 %.app:		buildDir $(TARGET_MODE)/%.app
-	@echo "Done Building $(TARGET_MODE)/$*"
+	@echo $(call subsection_title, Done Building $(TARGET_MODE)/$*)
 
 xxlib:		buildDir Note_Building_(TARGET_MODE)/lib%.$(SO) $(TARGET_MODE)/lib%.$(SO)
 
 %.slib:		buildDir $(TARGET_MODE)/lib%.$(SO)
-	@echo "Done Building $(TARGET_MODE)/lib$*.$(SO)"
+	@echo $(call subsection_title, Done Building $(TARGET_MODE)/lib$*.$(SO))
 
-	
-$(TARGET_MODE)/%.app:	$(OBJ) 
-	@echo "$(CC) -o $@"	| awk '{printf "%-80s", $$0}'
-	@$(CXX) -o $@ $(LDFLAGS) $(OBJ) $(LOADLIBES) $(ALL_LDLIBS) $(LDLIBS) 2>&1 >>  makefile_tmp; \
+
+
+
+$(TARGET_MODE)/%.app:	$(OBJ) $(TARGET_MODE)/%.o
+	@echo $(call colour_text, GRAY, "$(CC) -o $@")	| awk '{printf "%-80s", $$0}'
+	@$(CXX) -o $@ $(LDFLAGS) $(OBJ) $(TARGET_MODE)/$*.o$(LOADLIBES) $(ALL_LDLIBS) $(LDLIBS) $(call expand,$($*_LDLIBS)) 2>makefile_tmp; \
 	if [ $$? != 0 ];									\
 	then												\
-		echo "Failed in building application";			\
 		echo $(RED_ERROR);								\
-		echo $(CXX) -o $@ $(LDFLAGS) $(OBJ) $(LOADLIBES) $(ALL_LDLIBS) $(LDLIBS); \
+		echo $(CXX) -o $@ $(LDFLAGS) $(OBJ) $(TARGET_MODE)/$*.o $(LOADLIBES) $(ALL_LDLIBS) $(LDLIBS) $(call expand,$($*_LDLIBS)); \
 		echo "==================================================="; \
 		cat makefile_tmp;								\
 		exit 1;											\
@@ -270,15 +275,12 @@ $(TARGET_MODE)/%.app:	$(OBJ)
 		echo $(GREEN_OK);								\
 		$(RM) makefile_tmp;								\
 	fi
-	@$(RM) -f $*
-	@ln -s $@ $*
 
 $(TARGET_MODE)/lib%.$(SO):	$(OBJ)
-	@echo "$(CC) -shared -o $@"	| awk '{printf "%-80s", $$0}'
-	@$(CXX) -shared -o $@ $(LDFLAGS) $(OBJ) $(LOADLIBES) $(ALL_LDLIBS) $(LDLIBS) 2>&1 >>  makefile_tmp; \
+	@echo $(call colour_text, GRAY, "$(CC) -shared -o $@")	| awk '{printf "%-80s", $$0}'
+	@$(CXX) -shared -o $@ $(LDFLAGS) $(OBJ) $(LOADLIBES) $(ALL_LDLIBS) $(LDLIBS) 2>makefile_tmp; \
 	if [ $$? != 0 ];									\
 	then												\
-		echo "Failed in building shared-lib";			\
 		echo $(RED_ERROR);								\
 		echo $(CXX) -shared -o $@ $(LDFLAGS) $(OBJ) $(LOADLIBES) $(ALL_LDLIBS) $(LDLIBS); \
 		echo "==================================================="; \
@@ -290,11 +292,10 @@ $(TARGET_MODE)/lib%.$(SO):	$(OBJ)
 	fi
 
 $(TARGET_MODE)/%.o: %.cpp
-	@echo "$(CXX) -c $^" | awk '{printf "%-80s", $$0}'
-	@$(CXX) -c $^ -o $@ $(CPPFLAGS) $(CXXFLAGS) 2>&1 >>  makefile_tmp;	\
+	@echo $(call colour_text, GRAY, "$(CXX) -c $^") | awk '{printf "%-80s", $$0}'
+	@$(CXX) -c $^ -o $@ $(CPPFLAGS) $(CXXFLAGS) 2>makefile_tmp;	\
 	if [ $$? != 0 ];									\
 	then												\
-		echo "Failed in building source";				\
 		echo $(RED_ERROR);								\
 		echo $(CXX) -c $^ -o $@ $(CPPFLAGS) $(CXXFLAGS);\
 		echo "========================================";\
@@ -306,8 +307,8 @@ $(TARGET_MODE)/%.o: %.cpp
 	fi
 
 %.tab.cpp: %.y
-	@echo "$(YACC) $^" | awk '{printf "%-80s", $$0}'
-	@$(YACC) -o $@ -d $< 2>&1 >>  makefile_tmp;			\
+	@echo $(call colour_text, GRAY, "$(YACC) $^") | awk '{printf "%-80s", $$0}'
+	@$(YACC) -o $@ -d $< 2>makefile_tmp;				\
 	if [ $$? != 0 ];									\
 	then												\
 		echo "Failed in Parser Generator";				\
@@ -322,7 +323,7 @@ $(TARGET_MODE)/%.o: %.cpp
 	fi
 
 %.lex.cpp: %.l
-	@echo "$(LEX) $^" | awk '{printf "%-80s", $$0}'
+	@echo $(call colour_text, GRAY, "$(LEX) $^") | awk '{printf "%-80s", $$0}'
 	@$(LEX) -t $< | sed -e 's/<stdout>/$*.lex.cpp/' -e 's/extern "C" int isatty/\/\/ Removed extern "C" int isatty/' > $@;	\
 	if [ $$? != 0 ];									\
 	then												\
@@ -337,7 +338,7 @@ $(TARGET_MODE)/%.o: %.cpp
 	fi
 
 NotImplemented.%:
-	@echo "$* Not Implemented Yet"
+	@echo $(call colour_text, RED, "$* Not Implemented Yet")
 
 
 .PHONY:	Print_Off Print_On
