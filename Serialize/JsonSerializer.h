@@ -65,9 +65,12 @@
 #include <boost/mpl/for_each.hpp>
 #include <boost/mpl/vector.hpp>
 #include <boost/mpl/bool.hpp>
+#include "boost/mpl/or.hpp"
 #include <boost/type_traits/is_fundamental.hpp>
+#include <boost/type_traits/is_enum.hpp>
 #include <boost/typeof/typeof.hpp>
 #include <iostream>
+#include <sstream>
 
 
 /*
@@ -313,7 +316,51 @@ struct JsonSerializeItem
  * for each of the compound members that needs to be de-serialized (this is done recursively)
  * So we can de-serialize arbitrary json structures.
  */
-template<typename SerializeInfo, typename I, bool EnablePod = boost::is_fundamental<I>::value>
+template<typename I, bool EnableEnum = boost::is_enum<I>::value>
+struct JsonImportPODValueExtractor
+{
+    I operator()(JsonValue const& value) const                  {return value.getValue<I>();}
+};
+template<typename I, bool EnableEnum = boost::is_enum<I>::value>
+struct JsonExportPODValueExtractor
+{
+    void operator()(std::ostream& stream, I const& value) const {stream << value;}
+};
+
+template<typename I>
+struct JsonImportEnumMappings;
+
+template<typename I>
+struct JsonImportPODValueExtractor<I, true>
+{
+    I operator()(JsonValue const& value) const
+    {
+        static const std::size_t    size    = sizeof(JsonImportEnumMappings<I>::stringMap)/sizeof(JsonImportEnumMappings<I>::stringMap[0]);
+        std::string         sev     = value.getValue<std::string>();
+        std::string const*  find    = std::find(&JsonImportEnumMappings<I>::stringMap[0], &JsonImportEnumMappings<I>::stringMap[size], sev);
+        std::size_t         dist    = find - &JsonImportEnumMappings<I>::stringMap[0];
+        if (dist > size)
+        {
+            std::string         typeName(typeid(I).name());
+            std::stringstream   msg;
+            msg << typeName << ": Invalid Argument: " << sev;
+            throw std::invalid_argument(msg.str());
+        }
+        return static_cast<I>(dist);
+    }
+};
+template<typename I>
+struct JsonExportPODValueExtractor<I, true>
+{
+    void operator()(std::ostream& stream, I const& value) const
+    {
+        stream << "\"" << JsonImportEnumMappings<I>::stringMap[value] << "\"";
+    }
+};
+
+
+
+template<typename SerializeInfo, typename I, bool EnablePod = boost::mpl::or_<boost::is_fundamental<I>, boost::is_enum<I> >::value>
 class JsonImportAction: public ThorsAnvil::Json::SaxAction
 {
     I&              memberRef;
@@ -326,7 +373,8 @@ class JsonImportAction: public ThorsAnvil::Json::SaxAction
         virtual void doAction(ThorsAnvil::Json::ScannerSax&, ThorsAnvil::Json::Key const&, JsonValue const& value)
         {
             // Read fundamental type directly into the member
-            memberRef   = value.getValue<I>();
+            JsonImportPODValueExtractor<I>     extractor;
+            memberRef   = extractor(value);
         }
 };
 template<typename SerializeInfo, typename I>
@@ -418,7 +466,8 @@ struct MemberPrinter<T, T>
     // A normal object just prints itself.
     void operator()(std::ostream& stream, T const& source)
     {
-        stream << source;
+        JsonExportPODValueExtractor<T> extractor;
+        extractor(stream, source);
     }
 };
 template<typename T>
