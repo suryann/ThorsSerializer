@@ -92,6 +92,10 @@ template<> struct ParseTrait<std::string>       { typedef std::string  GetType;}
 /*
  * The base type of all values extracted from Json
  */
+std::ostream& operator<<(std::ostream& stream, JsonValue const& node);
+std::ostream& operator<<(std::ostream& stream, JsonMap   const& node);
+std::ostream& operator<<(std::ostream& stream, JsonArray const& node);
+
 struct JsonValue
 {
     virtual ~JsonValue()       {}
@@ -103,6 +107,7 @@ struct JsonValue
         this->setValue(value);
         return value;
     }
+    virtual void print(std::ostream& stream) const = 0;
 
     private:
     virtual void setValue(long&)        const { throw InvalidConversion();}
@@ -115,6 +120,7 @@ struct JsonStringItem: JsonValue
     std::auto_ptr<std::string>     value;
     JsonStringItem(std::auto_ptr<std::string>& data): value(data) {}
 
+    virtual void print(std::ostream& stream) const    { stream << '"' << *value << '"'; }
     private:
         virtual void setValue(std::string&       dst)  const {dst = *value;}
 };
@@ -122,6 +128,8 @@ struct JsonNumberItem: JsonValue
 {
     std::auto_ptr<std::string>     value;
     JsonNumberItem(std::auto_ptr<std::string>& data): value(data)   {}
+
+    virtual void print(std::ostream& stream) const    { stream << *value; }
     private:
         virtual void setValue(long&         dst)  const {dst = std::atol(value->c_str());}
         virtual void setValue(double&       dst)  const {dst = std::atof(value->c_str());}
@@ -130,11 +138,14 @@ struct JsonBoolItem: JsonValue
 {
     bool                            value;
     JsonBoolItem(bool data): value(data)       {}
+
+    virtual void print(std::ostream& stream) const    { stream << std::boolalpha << value; }
     private:
         virtual void setValue(bool&         dst)  const {dst = value;}
 };
 struct JsonNULLItem: JsonValue
 {
+    virtual void print(std::ostream& stream) const    { stream << "null"; }
     private:
         virtual void setValue(long&         dst)  const {dst= 0;}
         virtual void setValue(double&       dst)  const {dst= 0.0;}
@@ -145,14 +156,58 @@ struct JsonMapItem: JsonValue
 {
     std::auto_ptr<JsonMap>          value;
     JsonMapItem(std::auto_ptr<JsonMap>& data): value(data)    {}
+
+    virtual void print(std::ostream& stream) const    { stream << *value; }
     private:
 };
 struct JsonArrayItem: JsonValue
 {
     std::auto_ptr<JsonArray>        value;
     JsonArrayItem(std::auto_ptr<JsonArray>& data): value(data)    {}
+
+    virtual void print(std::ostream& stream) const    { stream << *value; }
     private:
 };
+
+inline std::ostream& operator<<(std::ostream& stream, JsonValue const& node)
+{
+    node.print(stream);
+    return stream;
+}
+inline std::ostream& operator<<(std::ostream& stream, JsonMap const& node)
+{
+    stream << "{";
+    if (!node.empty())
+    {
+        JsonMap::const_iterator loop = node.begin();
+        stream << "\"" << loop->first << "\": " << (*loop->second);
+
+        for(++loop; loop != node.end(); ++loop)
+        {
+            stream << ", \"" << loop->first << "\": " << (*loop->second);
+        }
+    }
+    stream << "}";
+
+    return stream;
+}
+inline std::ostream& operator<<(std::ostream& stream, JsonArray const& node)
+{
+    stream << "[";
+    if (!node.empty())
+    {
+        JsonArray::const_iterator loop = node.begin();
+        stream << (*loop);
+
+        for(++loop; loop != node.end(); ++loop)
+        {
+            stream << ", " << (*loop);
+        }
+    }
+    stream << "]";
+
+    return stream;
+}
 
     }
 }
