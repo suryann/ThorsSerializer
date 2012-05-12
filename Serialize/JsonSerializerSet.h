@@ -27,7 +27,7 @@ struct JsonSerializeTraits<std::set<T> >
     static JsonSerializeType const  type    = Array;
     typedef std::set<T>                                 LocalType;
     typedef JsonContainerAttributeAccessor<LocalType>   Accessor;
-    THORSANVIL_SERIALIZE_JsonGenericArrAttributeAccess(LocalType, Accessor);
+    THORSANVIL_SERIALIZE_JsonGenericArrAttributeAccess(Accessor);
     typedef boost::mpl::vector<genericAccessor>         SerializeInfo;
 };
 

@@ -156,8 +156,9 @@ namespace ThorsAnvil { namespace Serialize { namespace Json {
 template<>
 struct JsonSerializeTraits<OneMemberJsonClass>
 {
+    typedef OneMemberJsonClass  LocalType;
     static  JsonSerializeType const       type    = Map;
-    THORSANVIL_SERIALIZE_JsonAttribute(OneMemberJsonClass, value);
+    THORSANVIL_SERIALIZE_JsonAttribute(value);
     typedef boost::mpl::vector<value>   SerializeInfo;
 };
 }}}
@@ -178,8 +179,9 @@ namespace ThorsAnvil { namespace Serialize { namespace Json {
 template<>
 struct JsonSerializeTraits<NestedJsonTest>
 {
+    typedef NestedJsonTest LocalType;
     static  JsonSerializeType const       type    = Map;
-    THORSANVIL_SERIALIZE_JsonAttribute(NestedJsonTest, nested);
+    THORSANVIL_SERIALIZE_JsonAttribute(nested);
     typedef boost::mpl::vector<nested>   SerializeInfo;
 };
 }}}
@@ -202,8 +204,9 @@ namespace ThorsAnvil { namespace Serialize { namespace Json {
 template<>
 struct JsonSerializeTraits<TestFloat>
 {
+    typedef TestFloat   LocalType;
     static  JsonSerializeType const       type    = Map;
-    THORSANVIL_SERIALIZE_JsonAttribute(TestFloat, value);
+    THORSANVIL_SERIALIZE_JsonAttribute(value);
     typedef boost::mpl::vector<value>   SerializeInfo;
 };
 }}}
@@ -226,8 +229,9 @@ namespace ThorsAnvil { namespace Serialize { namespace Json {
 template<>
 struct JsonSerializeTraits<TestDouble>
 {
+    typedef TestDouble LocalType;
     static  JsonSerializeType const       type    = Map;
-    THORSANVIL_SERIALIZE_JsonAttribute(TestDouble, value);
+    THORSANVIL_SERIALIZE_JsonAttribute(value);
     typedef boost::mpl::vector<value>   SerializeInfo;
 };
 }}}
@@ -251,8 +255,9 @@ namespace ThorsAnvil { namespace Serialize { namespace Json {
 template<>
 struct JsonSerializeTraits<TestShort>
 {
+    typedef TestShort LocalType;
     static  JsonSerializeType const       type    = Map;
-    THORSANVIL_SERIALIZE_JsonAttribute(TestShort, value);
+    THORSANVIL_SERIALIZE_JsonAttribute(value);
     typedef boost::mpl::vector<value>   SerializeInfo;
 };
 }}}
@@ -275,8 +280,9 @@ namespace ThorsAnvil { namespace Serialize { namespace Json {
 template<>
 struct JsonSerializeTraits<TestInt>
 {
+    typedef TestInt     LocalType;
     static  JsonSerializeType const       type    = Map;
-    THORSANVIL_SERIALIZE_JsonAttribute(TestInt, value);
+    THORSANVIL_SERIALIZE_JsonAttribute(value);
     typedef boost::mpl::vector<value>   SerializeInfo;
 };
 }}}
@@ -299,8 +305,9 @@ namespace ThorsAnvil { namespace Serialize { namespace Json {
 template<>
 struct JsonSerializeTraits<TestLong>
 {
+    typedef TestLong LocalType;
     static  JsonSerializeType const       type    = Map;
-    THORSANVIL_SERIALIZE_JsonAttribute(TestLong, value);
+    THORSANVIL_SERIALIZE_JsonAttribute(value);
     typedef boost::mpl::vector<value>   SerializeInfo;
 };
 }}}
@@ -324,8 +331,9 @@ namespace ThorsAnvil { namespace Serialize { namespace Json {
 template<>
 struct JsonSerializeTraits<TestLongLong>
 {
+    typedef TestLongLong    LocalType;
     static  JsonSerializeType const       type    = Map;
-    THORSANVIL_SERIALIZE_JsonAttribute(TestLongLong, value);
+    THORSANVIL_SERIALIZE_JsonAttribute(value);
     typedef boost::mpl::vector<value>   SerializeInfo;
 };
 }}}
@@ -349,8 +357,9 @@ namespace ThorsAnvil { namespace Serialize { namespace Json {
 template<>
 struct JsonSerializeTraits<TestUnsignedShort>
 {
+    typedef TestUnsignedShort   LocalType;
     static  JsonSerializeType const       type    = Map;
-    THORSANVIL_SERIALIZE_JsonAttribute(TestUnsignedShort, value);
+    THORSANVIL_SERIALIZE_JsonAttribute(value);
     typedef boost::mpl::vector<value>   SerializeInfo;
 };
 }}}
@@ -373,8 +382,9 @@ namespace ThorsAnvil { namespace Serialize { namespace Json {
 template<>
 struct JsonSerializeTraits<TestUnsignedInt>
 {
+    typedef TestUnsignedInt LocalType;
     static  JsonSerializeType const       type    = Map;
-    THORSANVIL_SERIALIZE_JsonAttribute(TestUnsignedInt, value);
+    THORSANVIL_SERIALIZE_JsonAttribute(value);
     typedef boost::mpl::vector<value>   SerializeInfo;
 };
 }}}
@@ -397,8 +407,9 @@ namespace ThorsAnvil { namespace Serialize { namespace Json {
 template<>
 struct JsonSerializeTraits<TestUnsignedLong>
 {
+    typedef TestUnsignedLong    LocalType;
     static  JsonSerializeType const       type    = Map;
-    THORSANVIL_SERIALIZE_JsonAttribute(TestUnsignedLong, value);
+    THORSANVIL_SERIALIZE_JsonAttribute(value);
     typedef boost::mpl::vector<value>   SerializeInfo;
 };
 }}}
@@ -422,8 +433,9 @@ namespace ThorsAnvil { namespace Serialize { namespace Json {
 template<>
 struct JsonSerializeTraits<TestUnsignedLongLong>
 {
+    typedef TestUnsignedLongLong    LocalType;
     static  JsonSerializeType const       type    = Map;
-    THORSANVIL_SERIALIZE_JsonAttribute(TestUnsignedLongLong, value);
+    THORSANVIL_SERIALIZE_JsonAttribute(value);
     typedef boost::mpl::vector<value>   SerializeInfo;
 };
 }}}
@@ -448,8 +460,9 @@ namespace ThorsAnvil { namespace Serialize { namespace Json {
 template<>
 struct JsonSerializeTraits<TestBool>
 {
+    typedef TestBool    LocalType;
     static  JsonSerializeType const       type    = Map;
-    THORSANVIL_SERIALIZE_JsonAttribute(TestBool, value);
+    THORSANVIL_SERIALIZE_JsonAttribute(value);
     typedef boost::mpl::vector<value>   SerializeInfo;
 };
 }}}
@@ -479,8 +492,9 @@ namespace ThorsAnvil { namespace Serialize { namespace Json {
 template<>
 struct JsonSerializeTraits<TestString>
 {
+    typedef TestString  LocalType;
     static  JsonSerializeType const       type    = Map;
-    THORSANVIL_SERIALIZE_JsonAttribute(TestString, value);
+    THORSANVIL_SERIALIZE_JsonAttribute(value);
     typedef boost::mpl::vector<value>   SerializeInfo;
 };
 }}}
@@ -503,8 +517,9 @@ namespace ThorsAnvil { namespace Serialize { namespace Json {
 template<>
 struct JsonSerializeTraits<TestPointer>
 {
+    typedef TestPointer LocalType;
     static  JsonSerializeType const       type    = Map;
-    THORSANVIL_SERIALIZE_JsonAttribute(TestPointer, value);
+    THORSANVIL_SERIALIZE_JsonAttribute(value);
     typedef boost::mpl::vector<value>   SerializeInfo;
 };
 }}}

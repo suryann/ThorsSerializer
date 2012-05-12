@@ -28,7 +28,7 @@ struct JsonSerializeTraits<std::deque<T> >
 
     typedef std::deque<T>                               LocalType;
     typedef JsonContainerAttributeAccessor<LocalType>   Accessor;
-    THORSANVIL_SERIALIZE_JsonGenericArrAttributeAccess(LocalType, Accessor);
+    THORSANVIL_SERIALIZE_JsonGenericArrAttributeAccess(Accessor);
     typedef boost::mpl::vector<genericAccessor>         SerializeInfo;
 };
 

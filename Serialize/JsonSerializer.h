@@ -21,7 +21,7 @@
  *                              a member of the compound type.
  *
  * Boilerplate  code to create the appropriate types for SerializeInfo.
- *      #define THORSANVIL_SERIALIZE_JsonAttribute(className, member)
+ *      #define THORSANVIL_SERIALIZE_JsonAttribute(member)
  *
  * Example:
  *      class MyClass
@@ -38,11 +38,12 @@
  *      template<>
  *      class JsonSerializeTraits<MyClass>
  *      {
+ *          typedef LocalType;
  *          static ThorsAnvil::Serialize::Json::JsonSerializeType const  type    = Map;
  *
- *          THORSANVIL_SERIALIZE_JsonAttribute(MyClass, member1);
- *          THORSANVIL_SERIALIZE_JsonAttribute(MyClass, member2);
- *          THORSANVIL_SERIALIZE_JsonAttribute(MyClass, member3);
+ *          THORSANVIL_SERIALIZE_JsonAttribute(member1);
+ *          THORSANVIL_SERIALIZE_JsonAttribute(member2);
+ *          THORSANVIL_SERIALIZE_JsonAttribute(member3);
  *          typedef boost::mps::vector<member1, member2, member3>   SerializeInfo;
  *      };
  *      }}}
@@ -92,38 +93,38 @@
  *THORSANVIL_SERIALIZE_JsonGenericArrAttributeAccess:   A generic accessor used by for arrays rather than maps (std::vector)
  *                                                      But otherwise identical to THORSANVIL_SERIALIZE_JsonGenericMapAttributeAccess
  */
-#define THORSANVIL_SERIALIZE_JsonAttribute(className, member)                                                                           \
-    typedef BOOST_TYPEOF(((className*)01)->member)    JsonAttribute ## member ## Type;                                                  \
-    THORSANVIL_SERIALIZE_JsonAttribute_1(className, member, JsonSerializeTraits<JsonAttribute ## member ## Type>)
+#define THORSANVIL_SERIALIZE_JsonAttribute(member)                                                                           \
+    typedef BOOST_TYPEOF(((LocalType*)01)->member)    JsonAttribute ## member ## Type;                                                  \
+    THORSANVIL_SERIALIZE_JsonAttribute_1(member, JsonSerializeTraits<JsonAttribute ## member ## Type>)
 
-#define THORSANVIL_SERIALIZE_JsonAttribute_1(className, member, SerTraits)                                                              \
-    typedef BOOST_TYPEOF(&className::member)            JsonAttribute ## member ## TypePtr;                                             \
-    typedef JsonSerialElementAccessor<className, JsonAttribute ## member ## TypePtr, SerTraits>  JsonAttribute ## member ## Accessor;   \
-    struct member: JsonSerializeItem<className, JsonAttribute ## member ## Accessor, std::string>                                       \
+#define THORSANVIL_SERIALIZE_JsonAttribute_1(member, SerTraits)                                                              \
+    typedef BOOST_TYPEOF(&LocalType::member)            JsonAttribute ## member ## TypePtr;                                             \
+    typedef JsonSerialElementAccessor<LocalType, JsonAttribute ## member ## TypePtr, SerTraits>  JsonAttribute ## member ## Accessor;   \
+    struct member: JsonSerializeItem<LocalType, JsonAttribute ## member ## Accessor, std::string>                                       \
     {                                                                                                                                   \
         member()                                                                                                                        \
-            : JsonSerializeItem<className, JsonAttribute ## member ## Accessor, std::string>(#member, &className::member)               \
+            : JsonSerializeItem<LocalType, JsonAttribute ## member ## Accessor, std::string>(#member, &LocalType::member)               \
         {}                                                                                                                              \
     }
-#define THORSANVIL_SERIALIZE_JsonAttributeAccess(className, member, accessor)                                                           \
-    struct member: JsonSerializeItem<className, accessor, std::string>                                                                  \
+#define THORSANVIL_SERIALIZE_JsonAttributeAccess(member, accessor)                                                           \
+    struct member: JsonSerializeItem<LocalType, accessor, std::string>                                                                  \
     {                                                                                                                                   \
         member()                                                                                                                        \
-            : JsonSerializeItem<className, accessor, std::string>(#member, accessor())                                                  \
+            : JsonSerializeItem<LocalType, accessor, std::string>(#member, accessor())                                                  \
         {}                                                                                                                              \
     }
-#define THORSANVIL_SERIALIZE_JsonGenericMapAttributeAccess(className, accessor)                                                         \
-    struct genericAccessor: JsonSerializeItem<className, accessor, std::string>                                                         \
+#define THORSANVIL_SERIALIZE_JsonGenericMapAttributeAccess(accessor)                                                         \
+    struct genericAccessor: JsonSerializeItem<LocalType, accessor, std::string>                                                         \
     {                                                                                                                                   \
         genericAccessor()                                                                                                               \
-            : JsonSerializeItem<className, accessor, std::string>("\xFF", accessor())                                                   \
+            : JsonSerializeItem<LocalType, accessor, std::string>("\xFF", accessor())                                                   \
         {}                                                                                                                              \
     }
-#define THORSANVIL_SERIALIZE_JsonGenericArrAttributeAccess(className, accessor)                                                         \
-    struct genericAccessor: JsonSerializeItem<className, accessor, int>                                                                 \
+#define THORSANVIL_SERIALIZE_JsonGenericArrAttributeAccess(accessor)                                                         \
+    struct genericAccessor: JsonSerializeItem<LocalType, accessor, int>                                                                 \
     {                                                                                                                                   \
         genericAccessor()                                                                                                               \
-            : JsonSerializeItem<className, accessor, int>(-1 , accessor())                                                              \
+            : JsonSerializeItem<LocalType, accessor, int>(-1 , accessor())                                                              \
         {}                                                                                                                              \
     }
 

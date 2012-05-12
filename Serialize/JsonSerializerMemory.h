@@ -18,8 +18,8 @@ struct JsonSerializeTraits<std::pair<K,V> >
 {
     static JsonSerializeType const  type    = Map;
     typedef std::pair<K, V>      LocalType;
-    THORSANVIL_SERIALIZE_JsonAttribute(LocalType, first);
-    THORSANVIL_SERIALIZE_JsonAttribute(LocalType, second);
+    THORSANVIL_SERIALIZE_JsonAttribute(first);
+    THORSANVIL_SERIALIZE_JsonAttribute(second);
 
     typedef boost::mpl::vector<first,second>   SerializeInfo;
 };
