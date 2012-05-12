@@ -21,8 +21,17 @@ static void mergeJsonDom(JsonMap& dst, JsonMap& src, std::string const& errorMsg
         }
         else
         {
+            JsonNULLItem*   nil = dynamic_cast<JsonNULLItem*>(loop->second);
+            if (nil != NULL)
+            {
+                // JsonNull objects cause the node in the destination to be deleted.
+                dst.erase(find);
+                continue;
+            }
+
             JsonMapItem*    map = dynamic_cast<JsonMapItem*>(find->second);
             JsonArrayItem*  arr = dynamic_cast<JsonArrayItem*>(find->second);
+
 
             if ((map == NULL) && (arr == NULL))
             {
