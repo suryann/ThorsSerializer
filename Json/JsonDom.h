@@ -107,7 +107,7 @@ struct JsonValue
         this->setValue(value);
         return value;
     }
-    virtual void print(std::ostream& stream) const = 0;
+    virtual void print(std::ostream& /*stream*/) const {throw std::runtime_error("Invalid Json");}
 
     private:
     virtual void setValue(long&)        const { throw InvalidConversion();}
