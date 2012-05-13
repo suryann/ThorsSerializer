@@ -173,7 +173,7 @@ test:
 	@$(MAKE) PREFIX=$(PREFIX) TARGET_MODE=coverage objectarch
 	@echo $(call section_title,Building Unit Tests)
 	@touch test/unittest.cpp
-	@$(MAKE) PREFIX=$(PREFIX) TARGET_MODE=coverage -C test -f ../Makefile THORSANVIL_ROOT=$(THORSANVIL_ROOT) TEST_STATE=on TARGET=unittest.app
+	@$(MAKE) PREFIX=$(PREFIX) TARGET_MODE=coverage -C test -f ../Makefile THORSANVIL_ROOT=$(THORSANVIL_ROOT) TEST_STATE=on TARGET=unittest.app LINK_LIBS="$(UNITTEST_LINK_LIBS)"
 	@rm    test/unittest.cpp
 	@echo $(call section_title,Running Unit Tests)
 	@$(RUNTIME_SHARED_PATH_SET)=$(PREFIX_LIB) test/coverage/unittest.app
@@ -263,11 +263,11 @@ xxlib:		buildDir Note_Building_(TARGET_MODE)/lib%.$(SO) $(TARGET_MODE)/lib%.$(SO
 
 $(TARGET_MODE)/%.app:	$(OBJ) $(TARGET_MODE)/%.o
 	@echo $(call colour_text, GRAY, "$(CC) -o $@")	| awk '{printf "%-80s", $$0}'
-	@$(CXX) -o $@ $(LDFLAGS) $(OBJ) $(TARGET_MODE)/$*.o$(LOADLIBES) $(ALL_LDLIBS) $(LDLIBS) $(call expand,$($*_LDLIBS)) 2>makefile_tmp; \
+	@$(CXX) -o $@ $(LDFLAGS) $(OBJ) $(TARGET_MODE)/$*.o$(LOADLIBES) $(ALL_LDLIBS) $(LDLIBS) $($*_LDLIBS)$(call expand,$($*_LINK_LIBS)) 2>makefile_tmp; \
 	if [ $$? != 0 ];									\
 	then												\
 		echo $(RED_ERROR);								\
-		echo $(CXX) -o $@ $(LDFLAGS) $(OBJ) $(TARGET_MODE)/$*.o $(LOADLIBES) $(ALL_LDLIBS) $(LDLIBS) $(call expand,$($*_LDLIBS)); \
+		echo $(CXX) -o $@ $(LDFLAGS) $(OBJ) $(TARGET_MODE)/$*.o $(LOADLIBES) $(ALL_LDLIBS) $(LDLIBS) $($*_LDLIBS) $(call expand,$($*_LINK_LIBS)); \
 		echo "==================================================="; \
 		cat makefile_tmp;								\
 		exit 1;											\
