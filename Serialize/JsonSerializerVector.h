@@ -24,9 +24,10 @@ struct ContainerTraits<std::vector<T> >
 template<typename T>
 struct JsonSerializeTraits<std::vector<T> >
 {
+    typedef std::vector<T>                              LocalType;
+    typedef void                                        ParentType;
     static JsonSerializeType const  type    = Array;
 
-    typedef std::vector<T>                              LocalType;
     typedef JsonContainerAttributeAccessor<LocalType>   Accessor;
     THORSANVIL_SERIALIZE_JsonGenericArrAttributeAccess(Accessor);
     typedef boost::mpl::vector<genericAccessor>         SerializeInfo;

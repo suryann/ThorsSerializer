@@ -61,7 +61,8 @@ struct MemberPrinter<std::string>
 template<typename T>
 struct JsonSerializeTraits<T*>
 {
-    static JsonSerializeType const  type    = Invalid;
+	typedef void                     ParentType;
+    static JsonSerializeType const   type    = Invalid;
     typedef void*                    SerializeInfo;
 };
 template<typename T>

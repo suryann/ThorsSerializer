@@ -24,9 +24,10 @@ struct ContainerTraits<std::deque<T> >
 template<typename T>
 struct JsonSerializeTraits<std::deque<T> >
 {
+    typedef std::deque<T>                               LocalType;
+    typedef void                                        ParentType;
     static JsonSerializeType const  type    = Array;
 
-    typedef std::deque<T>                               LocalType;
     typedef JsonContainerAttributeAccessor<LocalType>   Accessor;
     THORSANVIL_SERIALIZE_JsonGenericArrAttributeAccess(Accessor);
     typedef boost::mpl::vector<genericAccessor>         SerializeInfo;

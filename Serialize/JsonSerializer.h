@@ -38,13 +38,14 @@
  *      template<>
  *      class JsonSerializeTraits<MyClass>
  *      {
- *          typedef LocalType;
+ *          typedef MyClass                                                        LocalType;
+ *          typedef void                                                           ParentType;
  *          static ThorsAnvil::Serialize::Json::JsonSerializeType const  type    = Map;
  *
  *          THORSANVIL_SERIALIZE_JsonAttribute(member1);
  *          THORSANVIL_SERIALIZE_JsonAttribute(member2);
  *          THORSANVIL_SERIALIZE_JsonAttribute(member3);
- *          typedef boost::mps::vector<member1, member2, member3>   SerializeInfo;
+ *          typedef boost::mpl::vector<member1, member2, member3>   SerializeInfo;
  *      };
  *      }}}
  *
@@ -65,10 +66,12 @@
 #include <boost/mpl/pop_front.hpp>
 #include <boost/mpl/for_each.hpp>
 #include <boost/mpl/vector.hpp>
+#include <boost/mpl/insert_range.hpp>
 #include <boost/mpl/bool.hpp>
-#include "boost/mpl/or.hpp"
+#include <boost/mpl/or.hpp>
 #include <boost/type_traits/is_fundamental.hpp>
 #include <boost/type_traits/is_enum.hpp>
+#include <boost/type_traits/is_void.hpp>
 #include <boost/typeof/typeof.hpp>
 #include <iostream>
 #include <sstream>
@@ -157,6 +160,7 @@ enum JsonSerializeType {Invalid, Map, Array};
 template<typename T>
 struct JsonSerializeTraits
 {
+	typedef void                  ParentType;
     static JsonSerializeType const  type    = Invalid;
     typedef T                     SerializeInfo;
 };
@@ -359,7 +363,8 @@ struct JsonExportPODValueExtractor<I, true>
     }
 };
 
-
+template<typename T, typename MemberToSerialize>
+struct MemberScanner;
 
 template<typename SerializeInfo, typename I, bool EnablePod = boost::mpl::or_<boost::is_fundamental<I>, boost::is_enum<I> >::value>
 class JsonImportAction: public ThorsAnvil::Json::SaxAction
@@ -390,9 +395,8 @@ class JsonImportAction<SerializeInfo, I, false>: public ThorsAnvil::Json::SaxAct
         virtual void doAction(ThorsAnvil::Json::ScannerSax&, ThorsAnvil::Json::Key const&, JsonValue const&){}
         virtual void doPreAction(ThorsAnvil::Json::ScannerSax& parser, ThorsAnvil::Json::Key const&)
         {
-            // Compound type. Register callback for each member.
-            //                This is done when the attribute is reached in json not before
-            boost::mpl::for_each<SerializeInfo>(MPLForEachActivateItem<I, ThorsAnvil::Json::ScannerSax>(parser, memberRef));
+            MemberScanner<I, SerializeInfo>   scanner;
+            scanner(parser,memberRef);
         }
 };
 
@@ -418,12 +422,28 @@ struct JsonSerializeBrace
 /*
  * The MemberScanner is used to register callbacks that will read sub-members from the json object
  */
+template<typename T, bool hasParent = boost::is_void<typename JsonSerializeTraits<T>::ParentType>::value>
+struct AppendParentInfo
+{
+    typedef typename JsonSerializeTraits<T>::SerializeInfo                                          MemberToSerialize;
+    typedef typename JsonSerializeTraits<T>::ParentType                                             ParentType;
+    typedef typename AppendParentInfo<ParentType>::type                                             ParentMembers;
+    typedef typename boost::mpl::end<MemberToSerialize>::type                                       memEnd;
+    typedef typename boost::mpl::insert_range<MemberToSerialize, memEnd, ParentMembers>::type       type;
+};
+
+template<typename T>
+struct AppendParentInfo<T, true>
+{
+    typedef typename JsonSerializeTraits<T>::SerializeInfo                                          type;
+};
 template<typename T, typename MemberToSerialize = typename JsonSerializeTraits<T>::SerializeInfo>
 struct MemberScanner
 {
     void operator()(ThorsAnvil::Json::ScannerSax& scanner, T& destination)
     {
-        boost::mpl::for_each<typename JsonSerializeTraits<T>::SerializeInfo>(MPLForEachActivateItem<T, ThorsAnvil::Json::ScannerSax>(scanner, destination));
+        typedef typename AppendParentInfo<T>::type  AllMembers;
+        boost::mpl::for_each<AllMembers>(MPLForEachActivateItem<T, ThorsAnvil::Json::ScannerSax>(scanner, destination));
     }
 };
 template<typename T>
@@ -449,8 +469,9 @@ struct MemberPrinter
 {
     void operator()(std::ostream& stream, T const& source)
     {
-        typedef typename boost::mpl::at<typename JsonSerializeTraits<T>::SerializeInfo, boost::integral_constant<int,0> >::type  FirstType;
-        typedef typename boost::mpl::pop_front<typename JsonSerializeTraits<T>::SerializeInfo>::type                             AllButFirstType;
+        typedef typename AppendParentInfo<T>::type  AllMembers;
+        typedef typename boost::mpl::at<AllMembers, boost::integral_constant<int,0> >::type  FirstType;
+        typedef typename boost::mpl::pop_front<AllMembers>::type                             AllButFirstType;
 
         MPLForEachActivateItem<T, std::ostream>     itemPrinter(stream, source);
 

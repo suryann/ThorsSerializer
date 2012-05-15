@@ -16,8 +16,10 @@ namespace ThorsAnvil
 template<typename K, typename V>
 struct JsonSerializeTraits<std::pair<K,V> >
 {
+    typedef std::pair<K, V>                   LocalType;
+    typedef void                              ParentType;
     static JsonSerializeType const  type    = Map;
-    typedef std::pair<K, V>      LocalType;
+
     THORSANVIL_SERIALIZE_JsonAttribute(first);
     THORSANVIL_SERIALIZE_JsonAttribute(second);
 

@@ -38,6 +38,7 @@ template<typename K, typename V>
 struct JsonSerializeTraits<std::map<K, V> >
 {
     typedef std::map<K, V>                              LocalType;
+    typedef void                                        ParentType;
     static JsonSerializeType const  type    = Array;
 
     typedef JsonContainerAttributeAccessor<LocalType>   Accessor;
@@ -118,9 +119,10 @@ class JsonContainerImportAction<SerializeInfo, std::map<std::string, V>, false, 
 template<typename V>
 struct JsonSerializeTraits<std::map<std::string, V> >
 {
+    typedef std::map<std::string, V>                    LocalType;
+    typedef void                                        ParentType;
     static JsonSerializeType const  type    = Map;
 
-    typedef std::map<std::string, V>                    LocalType;
     typedef JsonContainerAttributeAccessor<LocalType>   Accessor;
     THORSANVIL_SERIALIZE_JsonGenericMapAttributeAccess(Accessor);
     typedef boost::mpl::vector<genericAccessor>         SerializeInfo;
