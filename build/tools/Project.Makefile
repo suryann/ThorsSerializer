@@ -19,5 +19,5 @@ install:	$(SUB_PROJECTS)
 
 
 %.dir:
-	make -C $* $(ACTION) PREFIX=$(PREFIX)
+	MAKE -C $* $(ACTION) PREFIX=$(PREFIX) CXXSTDVER=$(CXXSTDVER)
 	
