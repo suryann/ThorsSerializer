@@ -60,6 +60,7 @@ INSTALL_HEADER				= $(if $(filter %.slib, $(TARGET)), $(patsubst %, install_head
 
 #
 # Set to On to see debug output
+CXXSTDVER					?=  03
 VERBOSE						?=	Off
 TARGET_MODE					?=	debug
 
@@ -107,9 +108,11 @@ OPTIMIZER_FLAGS_debug		=	-g
 OPTIMIZER_FLAGS_release		=	-O3
 OPTIMIZER_FLAGS_coverage	=	-g -fprofile-arcs -ftest-coverage
 
+CXXSTDVER_FLAGS_03			=
+CXXSTDVER_FLAGS_11			=	-std=c++0x
 
 CC							=	$(CXX)
-CXXFLAGS					+=	-fPIC $(WARNING_FLAGS) $(THORSANVIL_FLAGS) $(BOOST_FLAGS) $(TEST_FLAGS) $(OPTIMIZER_FLAGS) $(ENVIRONMENT_FLAGS)
+CXXFLAGS					+=	-fPIC $(WARNING_FLAGS) $(THORSANVIL_FLAGS) $(BOOST_FLAGS) $(TEST_FLAGS) $(OPTIMIZER_FLAGS) $(ENVIRONMENT_FLAGS) $(CXXSTDVER_FLAGS_$(CXXSTDVER))
 ALL_LDLIBS					+=	$(THORSANVIL_LIBS) $(BOOST_LIBS) $(TEST_LIBS) $(OPTIMIZER_LIBS)
 
 
@@ -119,9 +122,11 @@ PREFIX_BIN					?=	$(PREFIX)/bin
 PREFIX_LIB					?=	$(PREFIX)/lib
 PREFIX_INC					?=	$(PREFIX)/include
 PREFIX_INC3RD				?=	$(PREFIX)/include3rd
-BUILD_EXTENSION				=	$(BUILD_EXTENSION_$(TARGET_MODE))
-BUILD_EXTENSION_debug		=	D
-BUILD_EXTENSION_coverage	=	D
+BUILD_EXTENSION				=	$(BUILD_EXTENSION_CXXSTDVER_$(CXXSTDVER))$(BUILD_EXTENSION_TYPE_$(TARGET_MODE))
+BUILD_EXTENSION_CXXSTDVER_03	=   03
+BUILD_EXTENSION_CXXSTDVER_11	=	11
+BUILD_EXTENSION_TYPE_debug		=	D
+BUILD_EXTENSION_TYPE_coverage	=	D
 
 
 #
@@ -139,9 +144,9 @@ install_debug:	test try_install_head install_Dodebug
 install_release:test try_install_head install_Dorelease
 	
 install_Dodebug:
-	$(MAKE) PREFIX=$(PREFIX) TARGET_MODE=debug all doInstall
+	$(MAKE) PREFIX=$(PREFIX) CXXSTDVER=$(CXXSTDVER) TARGET_MODE=debug all doInstall
 install_Dorelease:
-	$(MAKE) PREFIX=$(PREFIX) TARGET_MODE=release all doInstall
+	$(MAKE) PREFIX=$(PREFIX) CXXSTDVER=$(CXXSTDVER) TARGET_MODE=release all doInstall
 
 doInstall:	try_install_app try_install_lib
 
@@ -170,19 +175,19 @@ veryclean: clean test_veryclean
 test:
 	@-$(RM) -rf coverage/libobject.a coverage/*.gcov coverage/*.gcda test/coverage/unittest.app
 	@echo $(call section_title,Building Objects for Testing and Coverage)
-	@$(MAKE) PREFIX=$(PREFIX) TARGET_MODE=coverage objectarch
+	@$(MAKE) PREFIX=$(PREFIX) CXXSTDVER=$(CXXSTDVER) TARGET_MODE=coverage objectarch
 	@echo $(call section_title,Building Unit Tests)
 	@touch test/unittest.cpp
-	@$(MAKE) PREFIX=$(PREFIX) TARGET_MODE=coverage -C test -f ../Makefile THORSANVIL_ROOT=$(THORSANVIL_ROOT) TEST_STATE=on TARGET=unittest.app LINK_LIBS="$(UNITTEST_LINK_LIBS)"
+	@$(MAKE) PREFIX=$(PREFIX) CXXSTDVER=$(CXXSTDVER) TARGET_MODE=coverage -C test -f ../Makefile THORSANVIL_ROOT=$(THORSANVIL_ROOT) TEST_STATE=on TARGET=unittest.app LINK_LIBS="$(UNITTEST_LINK_LIBS)"
 	@rm    test/unittest.cpp
 	@echo $(call section_title,Running Unit Tests)
 	@$(RUNTIME_SHARED_PATH_SET)=$(PREFIX_LIB) test/coverage/unittest.app
 	@echo
 	@echo
-	@echo $(call colour_text, GRAY, $(MAKE) PREFIX=$(PREFIX) TARGET_MODE=coverage report_coverage COVERAGE=$(COVERAGE))
+	@echo $(call colour_text, GRAY, $(MAKE) PREFIX=$(PREFIX) CXXSTDVER=$(CXXSTDVER) TARGET_MODE=coverage report_coverage COVERAGE=$(COVERAGE))
 	@echo
 	@echo
-	@$(MAKE) PREFIX=$(PREFIX) TARGET_MODE=coverage coverage COVERAGE=$(COVERAGE)
+	@$(MAKE) PREFIX=$(PREFIX) CXXSTDVER=$(CXXSTDVER) TARGET_MODE=coverage coverage COVERAGE=$(COVERAGE)
 
 install_app_%:
 	@$(CP) $(TARGET_MODE)/$*.app $(PREFIX_BIN)/$*$(BUILD_EXTENSION)
@@ -197,7 +202,7 @@ install_head_%: $(PREFIX_INC)/$(basename $(filter %.slib, $(TARGET))).Dir
 	@echo $(call subsection_title, Install Header $*)
 
 test_%:
-	@if [ -d test ]; then $(MAKE) -C test -f ../Makefile THORSANVIL_ROOT=$(THORSANVIL_ROOT) PREFIX=$(PREFIX) TEST_STATE=on TARGET=unittest.app $*; fi
+	@if [ -d test ]; then $(MAKE) -C test -f ../Makefile THORSANVIL_ROOT=$(THORSANVIL_ROOT) PREFIX=$(PREFIX) CXXSTDVER=$(CXXSTDVER) TEST_STATE=on TARGET=unittest.app $*; fi
 
 coverage:	$(GCOV_REPORT) $(patsubst coverage/%.gcov, report_coverage_%, $(GCOV_REPORT))
 	@left=`cat $(GCOV_ACTUAL) | grep '####' | wc -l`;				\
@@ -205,7 +210,7 @@ coverage:	$(GCOV_REPORT) $(patsubst coverage/%.gcov, report_coverage_%, $(GCOV_R
 	 res=`echo "$${left} > ($${right}  * 0.2)"  | bc`;				\
 	 if [ $${res} -ne 0 ]; then										\
 		echo $(RED_ERROR) $(call colour_text, PURPLE, Code Coverage does not exceed 80% of total);	\
-		echo "Use: '$(MAKE) test PREFIX=$(PREFIX) COVERAGE=On' to get details about coverage";		\
+		echo "Use: '$(MAKE) test PREFIX=$(PREFIX) CXXSTDVER=$(CXXSTDVER) COVERAGE=On' to get details about coverage";		\
 		exit 1;														\
 	 else															\
 		echo $(GREEN_OK) Code Coverage Passed;						\
@@ -229,9 +234,9 @@ report_coverage_%.tpp:
 	@if [ "$(COVERAGE)" = "$*.cpp" ]; then cat coverage/$*.tpp.gcov ; fi
 	
 debug:
-	@$(MAKE) PREFIX=$(PREFIX) TARGET_MODE=debug	 all
+	@$(MAKE) PREFIX=$(PREFIX) CXXSTDVER=$(CXXSTDVER) TARGET_MODE=debug	 all
 release:
-	@$(MAKE) PREFIX=$(PREFIX) TARGET_MODE=release all
+	@$(MAKE) PREFIX=$(PREFIX) CXXSTDVER=$(CXXSTDVER) TARGET_MODE=release all
 
 buildDir:	$(TARGET_MODE).Dir
 

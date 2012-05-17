@@ -18,11 +18,11 @@ class ParserRecursive
         LexerJson&         lexer;
         ParserInterface&    pi;
 
-        int JsonValueParse(int val, std::auto_ptr<JsonValue>& value);
-        int JsonMapValueListParse(int val, std::auto_ptr<JsonMap>& ma);
-        int JsonArrayValueListParse(int val, std::auto_ptr<JsonArray>& array);
-        int JsonMapParse(int val, std::auto_ptr<JsonMap>& map);
-        int JsonArrayParse(int val, std::auto_ptr<JsonArray>& array);
+        int JsonValueParse(int val, SMART_OWNED_PTR<JsonValue>& value);
+        int JsonMapValueListParse(int val, SMART_OWNED_PTR<JsonMap>& ma);
+        int JsonArrayValueListParse(int val, SMART_OWNED_PTR<JsonArray>& array);
+        int JsonMapParse(int val, SMART_OWNED_PTR<JsonMap>& map);
+        int JsonArrayParse(int val, SMART_OWNED_PTR<JsonArray>& array);
         int parseJosnObject(int val);
 
         int yylex() { return lexer.yylex(pi);}

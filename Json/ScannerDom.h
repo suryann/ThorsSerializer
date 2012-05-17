@@ -12,15 +12,15 @@ namespace ThorsAnvil
 
         class ScannerDom
         {
-            std::auto_ptr<JsonMap>      map;
-            std::auto_ptr<JsonArray>    array;
-            JsonObjectType              objectType;
+            SMART_OWNED_PTR<JsonMap>      map;
+            SMART_OWNED_PTR<JsonArray>    array;
+            JsonObjectType                objectType;
 
             public:
             template<typename Parser>
             JsonObjectType parse(std::istream& stream);
-            std::auto_ptr<JsonMap>&      getMap()       { return map;}
-            std::auto_ptr<JsonArray>&    getArray()     { return array;}
+            SMART_OWNED_PTR<JsonMap>&     getMap()       { return map;}
+            SMART_OWNED_PTR<JsonArray>&   getArray()     { return array;}
         };
     }
 }

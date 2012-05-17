@@ -21,18 +21,18 @@ class ScannerSaxInterface: public ParserCleanInterface
     ScannerSaxInterface(ScannerSax& p): parent(p)   {}
     virtual void            mapOpen()                                           { parent.push_mapAction();}
     virtual void            mapClose()                                          { parent.pop_mapAction();}
-    virtual std::string*    mapKeyNote(std::string* k)                          { std::auto_ptr<std::string> ak(k);                                         parent.preActivate(*ak);     return ak.release();}
-    virtual JsonMapValue*   mapCreateElement(std::string* k,JsonValue* val)     { std::auto_ptr<std::string> ak(k);     std::auto_ptr<JsonValue> aval(val); parent.activate(*ak, *aval); return NULL;}
+    virtual std::string*    mapKeyNote(std::string* k)                          { SMART_OWNED_PTR<std::string> ak(k);                                         parent.preActivate(*ak);     return ak.release();}
+    virtual JsonMapValue*   mapCreateElement(std::string* k,JsonValue* val)     { SMART_OWNED_PTR<std::string> ak(k);   SMART_OWNED_PTR<JsonValue> aval(val); parent.activate(*ak, *aval); return NULL;}
     virtual void            arrayOpen()                                         { currentArrayIndex.push_front(0); parent.push_arrAction(); parent.preActivate(currentArrayIndex.front());}
     virtual void            arrayClose()                                        { currentArrayIndex.pop_front();   parent.pop_arrAction();}
-    virtual JsonArray*      arrayNote(JsonArray* arr)                           { std::auto_ptr<JsonArray>   aarr(arr); parent.preActivate(currentArrayIndex.front());return NULL;}
-    virtual JsonValue*      arrayCreateElement(JsonValue* val)                  { std::auto_ptr<JsonValue>   aval(val); parent.activate(currentArrayIndex.front()++, *aval);return NULL;}
-    virtual JsonValue*      valueParseString(std::string* str)                  { std::auto_ptr<std::string> astr(str); return new JsonStringItem(astr);}
-    virtual JsonValue*      valueParseNumber(std::string* num)                  { std::auto_ptr<std::string> anum(num); return new JsonNumberItem(anum);}
-    virtual JsonValue*      valueParseBool(bool val)                            {                                       return new JsonBoolItem(val);}
-    virtual JsonValue*      valueParseNULL()                                    {                                       return new JsonNULLItem();}
-    virtual std::string*    getStringLexer(LexerJson& lexer)                    {                                       return new std::string(getString(lexer));}
-    virtual std::string*    getNumberLexer(LexerJson& lexer)                    {                                       return new std::string(getNumber(lexer));}
+    virtual JsonArray*      arrayNote(JsonArray* arr)                           { SMART_OWNED_PTR<JsonArray>   aarr(arr); parent.preActivate(currentArrayIndex.front());return NULL;}
+    virtual JsonValue*      arrayCreateElement(JsonValue* val)                  { SMART_OWNED_PTR<JsonValue>   aval(val); parent.activate(currentArrayIndex.front()++, *aval);return NULL;}
+    virtual JsonValue*      valueParseString(std::string* str)                  { SMART_OWNED_PTR<std::string> astr(str); return new JsonStringItem(astr);}
+    virtual JsonValue*      valueParseNumber(std::string* num)                  { SMART_OWNED_PTR<std::string> anum(num); return new JsonNumberItem(anum);}
+    virtual JsonValue*      valueParseBool(bool val)                            {                                         return new JsonBoolItem(val);}
+    virtual JsonValue*      valueParseNULL()                                    {                                         return new JsonNULLItem();}
+    virtual std::string*    getStringLexer(LexerJson& lexer)                    {                                         return new std::string(getString(lexer));}
+    virtual std::string*    getNumberLexer(LexerJson& lexer)                    {                                         return new std::string(getNumber(lexer));}
 };
     }
 }
@@ -63,40 +63,40 @@ void ScannerSax::parse(std::istream& src)
     parser.parse();
 }
 
-ActionRefNote ScannerSax::registerActionOnAllMapItems(std::auto_ptr<SaxAction> action)
+ActionRefNote ScannerSax::registerActionOnAllMapItems(SMART_OWNED_PTR<SaxAction> action)
 {
     // \xFF is an invalid UTF-8 character
     // The parser will never generate mapItem of this string
-    return registerAction("\xFF", action);
+    return registerAction("\xFF", SMART_OWNED_MOVE(action));
 }
-ActionRefNote ScannerSax::registerAction(std::string const& mapItem, std::auto_ptr<SaxAction> action)
+ActionRefNote ScannerSax::registerAction(std::string const& mapItem, SMART_OWNED_PTR<SaxAction> action)
 {
     SaxAction*&  location    = mapActions.front()[mapItem];
-    std::auto_ptr<SaxAction>  oldLocation(location);
+    SMART_OWNED_PTR<SaxAction>  oldLocation(location);
     location    = action.release();
     return &location;
 }
 
-ActionRefNote ScannerSax::registerActionOnAllArrItems(std::auto_ptr<SaxAction> action)
+ActionRefNote ScannerSax::registerActionOnAllArrItems(SMART_OWNED_PTR<SaxAction> action)
 {
     SaxAction*&  location    = arrActions.front().map[-1];
-    std::auto_ptr<SaxAction>  oldLocation(location);
+    SMART_OWNED_PTR<SaxAction>  oldLocation(location);
     location    = action.release();
     return &location;
 }
-ActionRefNote ScannerSax::registerActionNext(std::auto_ptr<SaxAction> action)
+ActionRefNote ScannerSax::registerActionNext(SMART_OWNED_PTR<SaxAction> action)
 {
     int          index       = arrActions.front().max++;
     SaxAction*&  location    = arrActions.front().map[index];
-    std::auto_ptr<SaxAction>  oldLocation(location);
+    SMART_OWNED_PTR<SaxAction>  oldLocation(location);
     location    = action.release();
     return &location;
 }
 
-void ScannerSax::replaceAction(ActionRefNote oldActionRef, std::auto_ptr<SaxAction> action)
+void ScannerSax::replaceAction(ActionRefNote oldActionRef, SMART_OWNED_PTR<SaxAction> action)
 {
     SaxAction*& location    = *reinterpret_cast<SaxAction**>(oldActionRef);
-    std::auto_ptr<SaxAction>  oldLocation(location);
+    SMART_OWNED_PTR<SaxAction>  oldLocation(location);
     location                = action.release();
 }
 

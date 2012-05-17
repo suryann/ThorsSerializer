@@ -2,6 +2,7 @@
 #ifndef THORSANVIL_JSON_JSON_DOM
 #define THORSANVIL_JSON_JSON_DOM
 
+#include "portability.h"
 #include "JsonException.h"
 
 #include <boost/ptr_container/ptr_vector.hpp>
@@ -48,7 +49,7 @@ struct JsonObject
         JsonArray*  array;
     } data;
 };
-typedef std::pair<std::auto_ptr<std::string>,std::auto_ptr<JsonValue> >     JsonMapValue;
+typedef std::pair<SMART_OWNED_PTR<std::string>,SMART_OWNED_PTR<JsonValue> >     JsonMapValue;
 
 /*
  * Json only supports three types:
@@ -117,8 +118,8 @@ struct JsonValue
 };
 struct JsonStringItem: JsonValue
 {
-    std::auto_ptr<std::string>     value;
-    JsonStringItem(std::auto_ptr<std::string>& data): value(data) {}
+    SMART_OWNED_PTR<std::string>     value;
+    JsonStringItem(SMART_OWNED_PTR<std::string>& data): value(SMART_OWNED_MOVE(data)) {}
 
     virtual void print(std::ostream& stream) const    { stream << '"' << *value << '"'; }
     private:
@@ -126,8 +127,8 @@ struct JsonStringItem: JsonValue
 };
 struct JsonNumberItem: JsonValue
 {
-    std::auto_ptr<std::string>     value;
-    JsonNumberItem(std::auto_ptr<std::string>& data): value(data)   {}
+    SMART_OWNED_PTR<std::string>     value;
+    JsonNumberItem(SMART_OWNED_PTR<std::string>& data): value(SMART_OWNED_MOVE(data))   {}
 
     virtual void print(std::ostream& stream) const    { stream << *value; }
     private:
@@ -154,16 +155,16 @@ struct JsonNULLItem: JsonValue
 };
 struct JsonMapItem: JsonValue
 {
-    std::auto_ptr<JsonMap>          value;
-    JsonMapItem(std::auto_ptr<JsonMap>& data): value(data)    {}
+    SMART_OWNED_PTR<JsonMap>          value;
+    JsonMapItem(SMART_OWNED_PTR<JsonMap>& data): value(SMART_OWNED_MOVE(data))    {}
 
     virtual void print(std::ostream& stream) const    { stream << *value; }
     private:
 };
 struct JsonArrayItem: JsonValue
 {
-    std::auto_ptr<JsonArray>        value;
-    JsonArrayItem(std::auto_ptr<JsonArray>& data): value(data)    {}
+    SMART_OWNED_PTR<JsonArray>        value;
+    JsonArrayItem(SMART_OWNED_PTR<JsonArray>& data): value(SMART_OWNED_MOVE(data))    {}
 
     virtual void print(std::ostream& stream) const    { stream << *value; }
     private:

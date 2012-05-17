@@ -87,7 +87,7 @@ class JsonContainerImportAction<SerializeInfo, C, false, false>: public ThorsAnv
             : destination(dst)
         {}
 
-        virtual void doPreAction(ThorsAnvil::Json::ScannerSax& parser, ThorsAnvil::Json::Key const& key)
+        virtual void doPreAction(ThorsAnvil::Json::ScannerSax& parser, ThorsAnvil::Json::Key const& /*key*/)
         {
             destination.push_back(DataType());
             boost::mpl::for_each<typename JsonSerializeTraits<DataType>::SerializeInfo>(MPLForEachActivateItem<DataType, ThorsAnvil::Json::ScannerSax>(parser, destination.back()));
@@ -143,9 +143,9 @@ class JsonContainerAttributeAccessor
             }
         }
     }
-    std::auto_ptr<ThorsAnvil::Json::SaxAction>      action(C& dst) const
+    SMART_OWNED_PTR<ThorsAnvil::Json::SaxAction>      action(C& dst) const
     {
-        std::auto_ptr<ThorsAnvil::Json::SaxAction>  action(new_JsonImportAction<typename JsonSerializeTraits<typename ContainerTraits<C>::DataType>::SerializeInfo>(dst));
+        SMART_OWNED_PTR<ThorsAnvil::Json::SaxAction>  action(new_JsonImportAction<typename JsonSerializeTraits<typename ContainerTraits<C>::DataType>::SerializeInfo>(dst));
         return action;
     }
 };

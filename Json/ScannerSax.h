@@ -86,11 +86,11 @@ class ScannerSax
          ScannerSax();
         template<typename Parser>
         void            parse(std::istream& src);
-        ActionRefNote   registerAction(std::string const& mapItem, std::auto_ptr<SaxAction> action);
-        ActionRefNote   registerActionNext(std::auto_ptr<SaxAction> action);
-        ActionRefNote   registerActionOnAllMapItems(std::auto_ptr<SaxAction> action);
-        ActionRefNote   registerActionOnAllArrItems(std::auto_ptr<SaxAction> action);
-        void            replaceAction(ActionRefNote oldActionRef, std::auto_ptr<SaxAction> action);
+        ActionRefNote   registerAction(std::string const& mapItem, SMART_OWNED_PTR<SaxAction> action);
+        ActionRefNote   registerActionNext(SMART_OWNED_PTR<SaxAction> action);
+        ActionRefNote   registerActionOnAllMapItems(SMART_OWNED_PTR<SaxAction> action);
+        ActionRefNote   registerActionOnAllArrItems(SMART_OWNED_PTR<SaxAction> action);
+        void            replaceAction(ActionRefNote oldActionRef, SMART_OWNED_PTR<SaxAction> action);
 
     private:
         friend class ScannerSaxInterface;

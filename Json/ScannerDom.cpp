@@ -8,11 +8,11 @@ using namespace ThorsAnvil::Json;
 
 class ScannerDomInterface: public ParserDomInterface
 {
-    JsonObjectType&             objectTypeRef;
-    std::auto_ptr<JsonMap>&     mapRef;
-    std::auto_ptr<JsonArray>&   arrayRef;
+    JsonObjectType&               objectTypeRef;
+    SMART_OWNED_PTR<JsonMap>&     mapRef;
+    SMART_OWNED_PTR<JsonArray>&   arrayRef;
     public:
-    ScannerDomInterface(JsonObjectType& objectType, std::auto_ptr<JsonMap>&  map, std::auto_ptr<JsonArray>& array)
+    ScannerDomInterface(JsonObjectType& objectType, SMART_OWNED_PTR<JsonMap>&  map, SMART_OWNED_PTR<JsonArray>& array)
         : objectTypeRef(objectType)
         , mapRef(map)
         , arrayRef(array)

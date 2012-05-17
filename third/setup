@@ -5,6 +5,7 @@ ROOT=`pwd`
 cd ../build
 mkdir lib bin include include3rd
 cd ${ROOT}
+cp portabillity.h ../build/include
 
 # Need this to unpack some of the packages.
 # sudo apt-get install unzip

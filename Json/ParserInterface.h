@@ -111,14 +111,14 @@ struct ParserCleanInterface: ParserInterface
     virtual void            mapClose()                                          {}
     virtual JsonMap*        mapCreate()                                         { return NULL;}
     virtual JsonMap*        mapCreate(JsonMapValue* val)                        { delete val; return NULL;}
-    virtual JsonMap*        mapAppend(JsonMap* map, JsonMapValue* val)          { std::auto_ptr<JsonMapValue> aval(val); delete map; return NULL;}
-    virtual JsonMapValue*   mapCreateElement(std::string* k,JsonValue* val)     { std::auto_ptr<JsonValue> aval(val); delete k;   return NULL;}
+    virtual JsonMap*        mapAppend(JsonMap* map, JsonMapValue* val)          { SMART_OWNED_PTR<JsonMapValue> aval(val); delete map; return NULL;}
+    virtual JsonMapValue*   mapCreateElement(std::string* k,JsonValue* val)     { SMART_OWNED_PTR<JsonValue> aval(val); delete k;   return NULL;}
     virtual std::string*    mapKeyNote(std::string* k)                          { delete k; return NULL;}
     virtual void            arrayOpen()                                         {}
     virtual void            arrayClose()                                        {}
     virtual JsonArray*      arrayCreate()                                       { return NULL;}
     virtual JsonArray*      arrayCreate(JsonValue* val)                         { delete val; return NULL;}
-    virtual JsonArray*      arrayAppend(JsonArray* arr, JsonValue* val)         { std::auto_ptr<JsonArray> aarr(arr); delete val; return NULL;}
+    virtual JsonArray*      arrayAppend(JsonArray* arr, JsonValue* val)         { SMART_OWNED_PTR<JsonArray> aarr(arr); delete val; return NULL;}
     virtual JsonArray*      arrayNote(JsonArray* arr)                           { delete arr; return NULL;}
     virtual JsonValue*      arrayCreateElement(JsonValue* val)                  { delete val; return NULL;}
     virtual JsonValue*      valueParseMap(JsonMap* map)                         { delete map; return NULL;}
@@ -134,23 +134,23 @@ struct ParserCleanInterface: ParserInterface
 struct ParserDomInterface: ParserCleanInterface
 {
     virtual JsonMap*        mapCreate()                                         { return new JsonMap();}
-    virtual JsonMap*        mapCreate(JsonMapValue* val)                        { std::auto_ptr<JsonMapValue>aval(val);std::auto_ptr<JsonMap> amap(new JsonMap());amap->insert(*(aval->first), aval->second);return amap.release();}
-    virtual JsonMap*        mapAppend(JsonMap* map, JsonMapValue* val)          { std::auto_ptr<JsonMapValue>aval(val);std::auto_ptr<JsonMap> amap(map);          amap->insert(*(aval->first), aval->second);return amap.release();}
-    virtual JsonMapValue*   mapCreateElement(std::string* k,JsonValue* val)     { std::auto_ptr<JsonValue>  aval(val);std::auto_ptr<std::string> ak(k);
-                                                                                  std::auto_ptr<JsonMapValue> result(new JsonMapValue);result->first = ak;result->second = aval;
+    virtual JsonMap*        mapCreate(JsonMapValue* val)                        { SMART_OWNED_PTR<JsonMapValue>aval(val);SMART_OWNED_PTR<JsonMap> amap(new JsonMap());amap->insert(*(aval->first), aval->second.release());return amap.release();}
+    virtual JsonMap*        mapAppend(JsonMap* map, JsonMapValue* val)          { SMART_OWNED_PTR<JsonMapValue>aval(val);SMART_OWNED_PTR<JsonMap> amap(map);          amap->insert(*(aval->first), aval->second.release());return amap.release();}
+    virtual JsonMapValue*   mapCreateElement(std::string* k,JsonValue* val)     { SMART_OWNED_PTR<JsonValue>  aval(val);SMART_OWNED_PTR<std::string> ak(k);
+                                                                                  SMART_OWNED_PTR<JsonMapValue> result(new JsonMapValue);result->first = SMART_OWNED_MOVE(ak);result->second = SMART_OWNED_MOVE(aval);
                                                                                   return result.release();
                                                                                 }
     virtual std::string*    mapKeyNote(std::string* k)                          { return k;}
     virtual JsonArray*      arrayCreate()                                       { return new JsonArray();}
-    virtual JsonArray*      arrayCreate(JsonValue* val)                         { std::auto_ptr<JsonValue>  aval(val);std::auto_ptr<JsonArray>   aarr(new JsonArray());aarr->push_back(aval); return aarr.release();}
-    virtual JsonArray*      arrayAppend(JsonArray* arr, JsonValue* val)         { std::auto_ptr<JsonValue>  aval(val);std::auto_ptr<JsonArray>   aarr(arr);            aarr->push_back(aval); return aarr.release();}
+    virtual JsonArray*      arrayCreate(JsonValue* val)                         { SMART_OWNED_PTR<JsonValue>  aval(val);SMART_OWNED_PTR<JsonArray>   aarr(new JsonArray());aarr->push_back(aval.release()); return aarr.release();}
+    virtual JsonArray*      arrayAppend(JsonArray* arr, JsonValue* val)         { SMART_OWNED_PTR<JsonValue>  aval(val);SMART_OWNED_PTR<JsonArray>   aarr(arr);            aarr->push_back(aval.release()); return aarr.release();}
     virtual JsonArray*      arrayNote(JsonArray* arr)                           { return arr;}
-    virtual JsonValue*      arrayCreateElement(JsonValue* val)                  { std::auto_ptr<JsonValue>  aval(val); return aval.release();}
+    virtual JsonValue*      arrayCreateElement(JsonValue* val)                  { SMART_OWNED_PTR<JsonValue>  aval(val); return aval.release();}
 
-    virtual JsonValue*      valueParseMap(JsonMap* map)                         { std::auto_ptr<JsonMap>     amap(map); return new JsonMapItem(amap);}
-    virtual JsonValue*      valueParseArray(JsonArray* arr)                     { std::auto_ptr<JsonArray>   aarr(arr); return new JsonArrayItem(aarr);}
-    virtual JsonValue*      valueParseString(std::string* str)                  { std::auto_ptr<std::string> astr(str); return new JsonStringItem(astr);}
-    virtual JsonValue*      valueParseNumber(std::string* num)                  { std::auto_ptr<std::string> anum(num); return new JsonNumberItem(anum);}
+    virtual JsonValue*      valueParseMap(JsonMap* map)                         { SMART_OWNED_PTR<JsonMap>     amap(map); return new JsonMapItem(amap);}
+    virtual JsonValue*      valueParseArray(JsonArray* arr)                     { SMART_OWNED_PTR<JsonArray>   aarr(arr); return new JsonArrayItem(aarr);}
+    virtual JsonValue*      valueParseString(std::string* str)                  { SMART_OWNED_PTR<std::string> astr(str); return new JsonStringItem(astr);}
+    virtual JsonValue*      valueParseNumber(std::string* num)                  { SMART_OWNED_PTR<std::string> anum(num); return new JsonNumberItem(anum);}
     virtual JsonValue*      valueParseBool(bool value)                          { return new JsonBoolItem(value);}
     virtual JsonValue*      valueParseNULL()                                    { return new JsonNULLItem();}
 

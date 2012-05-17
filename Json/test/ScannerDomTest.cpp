@@ -13,7 +13,7 @@ TEST(ScannerDom, ShiftReduceScanMapEmpty)
 
     ASSERT_TRUE(scanner.parse<yy::ParserShiftReduce>(json) == ThorsAnvil::Json::JsonMapObject);
 
-    std::auto_ptr<ThorsAnvil::Json::JsonMap>&  map    = scanner.getMap();
+    SMART_OWNED_PTR<ThorsAnvil::Json::JsonMap>&  map    = scanner.getMap();
     ASSERT_TRUE(map.get() != NULL);
 }
 
@@ -24,7 +24,7 @@ TEST(ScannerDom, ShiftReduceScanArrayEmpty)
 
     ASSERT_TRUE(scanner.parse<yy::ParserShiftReduce>(json) == ThorsAnvil::Json::JsonArrayObject);
 
-    std::auto_ptr<ThorsAnvil::Json::JsonArray>& array = scanner.getArray();
+    SMART_OWNED_PTR<ThorsAnvil::Json::JsonArray>& array = scanner.getArray();
     ASSERT_TRUE(array.get() != NULL);
 }
 
@@ -35,7 +35,7 @@ TEST(ScannerDom, RecursiveScanMapEmpty)
 
     ASSERT_TRUE(scanner.parse<ThorsAnvil::Json::ParserRecursive>(json) == ThorsAnvil::Json::JsonMapObject);
 
-    std::auto_ptr<ThorsAnvil::Json::JsonMap>&  map    = scanner.getMap();
+    SMART_OWNED_PTR<ThorsAnvil::Json::JsonMap>&  map    = scanner.getMap();
     ASSERT_TRUE(map.get() != NULL);
 }
 
@@ -46,7 +46,7 @@ TEST(ScannerDom, RecursiveScanArrayEmpty)
 
     ASSERT_TRUE(scanner.parse<ThorsAnvil::Json::ParserRecursive>(json) == ThorsAnvil::Json::JsonArrayObject);
 
-    std::auto_ptr<ThorsAnvil::Json::JsonArray>& array = scanner.getArray();
+    SMART_OWNED_PTR<ThorsAnvil::Json::JsonArray>& array = scanner.getArray();
     ASSERT_TRUE(array.get() != NULL);
 }
 
@@ -58,7 +58,7 @@ TEST(ScannerDom, ShiftReduceScanMap)
 
     ASSERT_TRUE(scanner.parse<yy::ParserShiftReduce>(json) == ThorsAnvil::Json::JsonMapObject);
 
-    std::auto_ptr<ThorsAnvil::Json::JsonMap>&  map    = scanner.getMap();
+    SMART_OWNED_PTR<ThorsAnvil::Json::JsonMap>&  map    = scanner.getMap();
     ASSERT_TRUE(map.get() != NULL);
 }
 
@@ -69,7 +69,7 @@ TEST(ScannerDom, ShiftReduceScanArray)
 
     ASSERT_TRUE(scanner.parse<yy::ParserShiftReduce>(json) == ThorsAnvil::Json::JsonArrayObject);
 
-    std::auto_ptr<ThorsAnvil::Json::JsonArray>& array = scanner.getArray();
+    SMART_OWNED_PTR<ThorsAnvil::Json::JsonArray>& array = scanner.getArray();
     ASSERT_TRUE(array.get() != NULL);
 }
 
@@ -80,7 +80,7 @@ TEST(ScannerDom, RecursiveScanMap)
 
     ASSERT_TRUE(scanner.parse<ThorsAnvil::Json::ParserRecursive>(json) == ThorsAnvil::Json::JsonMapObject);
 
-    std::auto_ptr<ThorsAnvil::Json::JsonMap>&  map    = scanner.getMap();
+    SMART_OWNED_PTR<ThorsAnvil::Json::JsonMap>&  map    = scanner.getMap();
     ASSERT_TRUE(map.get() != NULL);
 }
 
@@ -91,7 +91,7 @@ TEST(ScannerDom, RecursiveScanArray)
 
     ASSERT_TRUE(scanner.parse<ThorsAnvil::Json::ParserRecursive>(json) == ThorsAnvil::Json::JsonArrayObject);
 
-    std::auto_ptr<ThorsAnvil::Json::JsonArray>& array = scanner.getArray();
+    SMART_OWNED_PTR<ThorsAnvil::Json::JsonArray>& array = scanner.getArray();
     ASSERT_TRUE(array.get() != NULL);
 }
 
