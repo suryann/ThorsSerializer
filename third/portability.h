@@ -17,7 +17,6 @@
 #else
 
 #define SMART_OWNED_PTR_TYPE_STD_AUTO_PTR    1
-#error "PLOP"
 
 #endif
 
