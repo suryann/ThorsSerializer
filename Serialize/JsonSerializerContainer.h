@@ -26,11 +26,11 @@ struct ContainerTraits;
  *                              This mean we can insert a default object into the container as soon as possable.
  *                              The JSON reading code will then de-serialize directly into the object in the container.
  */
-template<typename SerializeInfo, typename C, bool EnablePod = boost::is_fundamental<typename ContainerTraits<C>::DataType>::value, bool isConstContainer = ContainerTraits<C>::isConstContainer>
+template<typename SerializeInfo, typename C, typename CV = typename C::value_type, bool EnablePod = boost::is_fundamental<typename ContainerTraits<C>::DataType>::value, bool isConstContainer = ContainerTraits<C>::isConstContainer>
 class JsonContainerImportAction;
 
-template<typename SerializeInfo, typename C>
-class JsonContainerImportAction<SerializeInfo, C, false, true>: public ThorsAnvil::Json::SaxAction
+template<typename SerializeInfo, typename C, typename CV>
+class JsonContainerImportAction<SerializeInfo, C, CV, false, true>: public ThorsAnvil::Json::SaxAction
 {
     // Class for reading into a const container.
     // That contains objects that are not a fundamental JSON type (not int/float/string etc)
@@ -54,8 +54,8 @@ class JsonContainerImportAction<SerializeInfo, C, false, true>: public ThorsAnvi
             destination.insert(nextValue);
         }
 };
-template<typename SerializeInfo, typename C>
-class JsonContainerImportAction<SerializeInfo, C, true, true>: public ThorsAnvil::Json::SaxAction
+template<typename SerializeInfo, typename C, typename CV>
+class JsonContainerImportAction<SerializeInfo, C, CV, true, true>: public ThorsAnvil::Json::SaxAction
 {
     // Class for reading into a const container.
     // That contains objects that are a fundamental JSON type (int/float/string etc)
@@ -73,8 +73,8 @@ class JsonContainerImportAction<SerializeInfo, C, true, true>: public ThorsAnvil
             destination.insert(value.getValue<typename ContainerTraits<C>::DataType>());
         }
 };
-template<typename SerializeInfo, typename C>
-class JsonContainerImportAction<SerializeInfo, C, false, false>: public ThorsAnvil::Json::SaxAction
+template<typename SerializeInfo, typename C, typename CV>
+class JsonContainerImportAction<SerializeInfo, C, CV, false, false>: public ThorsAnvil::Json::SaxAction
 {
     // Class for reading into a mutable container
     // That contains objects that are a NOT fundamental JSON type (not int/float/string etc)
@@ -96,8 +96,8 @@ class JsonContainerImportAction<SerializeInfo, C, false, false>: public ThorsAnv
         {}
 };
 
-template<typename SerializeInfo, typename C>
-class JsonContainerImportAction<SerializeInfo, C, true, false>: public ThorsAnvil::Json::SaxAction
+template<typename SerializeInfo, typename C, typename CV>
+class JsonContainerImportAction<SerializeInfo, C, CV, true, false>: public ThorsAnvil::Json::SaxAction
 {
     // Class for reading into a mutable container
     // That contains objects that are a fundamental JSON type (int/float/string etc)
@@ -118,6 +118,27 @@ class JsonContainerImportAction<SerializeInfo, C, true, false>: public ThorsAnvi
         }
 };
 
+template<typename SerializeInfo, typename C>
+class JsonContainerImportAction<SerializeInfo, C, std::string, false, false>: public ThorsAnvil::Json::SaxAction
+{
+    // Class for reading into a mutable container
+    // That contains objects that are a fundamental JSON type (int/float/string etc)
+    typedef C                                       LocalType;
+    typedef typename ContainerTraits<C>::DataType   DataType;
+    LocalType&      destination;
+
+    public:
+        JsonContainerImportAction(LocalType& dst)
+            : destination(dst)
+        {}
+
+        virtual void doPreAction(ThorsAnvil::Json::ScannerSax&, ThorsAnvil::Json::Key const&)
+        {}
+        virtual void doAction(ThorsAnvil::Json::ScannerSax&, ThorsAnvil::Json::Key const&, JsonValue const& value)
+        {
+            destination.push_back(value.getValue<DataType>());
+        }
+};
 
 template<typename SerializeInfo, typename C>
 ThorsAnvil::Json::SaxAction* new_JsonImportAction(C& dst)

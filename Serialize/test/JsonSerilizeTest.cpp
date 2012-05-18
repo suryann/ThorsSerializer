@@ -118,6 +118,13 @@ TEST(JsonSerialize, ListOfVector)
     std::string result  = testAction<std::list<std::vector<int> > >(input);
     ValidateSerializedStrings(input, result);
 }
+TEST(JsonSerialize, ListOfString)
+{
+    std::string input   = "[ \"String1\", \"String2\", \"String3\", \"String4\" ]";
+    std::string result  = testAction<std::vector<std::string> >(input);
+    ValidateSerializedStrings(input, result);
+}
+
 TEST(JsonSerialize, ListOfMap)
 {
     std::string input   = "[ {\"a\":1, \"b\": 2}, {\"g\": 45, \"h\": 45}]";

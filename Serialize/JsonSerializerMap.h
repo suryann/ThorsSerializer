@@ -83,7 +83,7 @@ class JsonContainerAttributeAccessor<std::map<std::string, V> >
 };
 
 template<typename SerializeInfo, typename V>
-class JsonContainerImportAction<SerializeInfo, std::map<std::string,V>, true, true>: public ThorsAnvil::Json::SaxAction
+class JsonContainerImportAction<SerializeInfo, std::map<std::string,V>, typename std::map<std::string,V>::value_type, true, true>: public ThorsAnvil::Json::SaxAction
 {
     std::map<std::string,V>&            destination;
     public:
@@ -101,7 +101,7 @@ class JsonContainerImportAction<SerializeInfo, std::map<std::string,V>, true, tr
 };
 
 template<typename SerializeInfo, typename V>
-class JsonContainerImportAction<SerializeInfo, std::map<std::string, V>, false, true>: public ThorsAnvil::Json::SaxAction
+class JsonContainerImportAction<SerializeInfo, std::map<std::string, V>, typename std::map<std::string, V>::value_type, false, true>: public ThorsAnvil::Json::SaxAction
 {
     std::map<std::string,V>&            destination;
     public:
