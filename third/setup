@@ -2,10 +2,16 @@
 
 ROOT=`pwd`
 
-cd ../build
-mkdir lib bin include include3rd
+ #
+ # Change this as required to point at the root of ThorsAnvil code
+THORSANVIL_ROOT=`dirname ${ROOT}`
+
+
+cd ${THORSANVIL_ROOT}
+git submodule init
+git submodule update
 cd ${ROOT}
-cp portabillity.h ../build/include
+
 
 # Need this to unpack some of the packages.
 # sudo apt-get install unzip
@@ -15,9 +21,6 @@ cp portabillity.h ../build/include
 sudo apt-get install bison flex
 sudo apt-get install libboost-dev libboost-doc
 
- #
- # Change this as required to point at the root of ThorsAnvil code
-THORSANVIL_ROOT=`dirname ${ROOT}`
 
  #
  # If you want to use your own version of boost set USE_INSTALLED_BOOST
@@ -41,7 +44,6 @@ BOOST_LOG=0
  #
  # If you want to use the unit test automatically you need this
  #
-GOOGLE_UNIT_TEST=1
 
 
 
@@ -108,36 +110,4 @@ else
     ln -s ${USE_INSTALLED_BOOST}/boost .
 
 fi
-
-
-cd ${ROOT}
-if [[ ${GOOGLE_UNIT_TEST} == 1 ]]; then
-    echo "Un-archiving google test"
-
-    GTEST_ARCHIEVE=`ls gtest-*.zip 2>/dev/null | tail -n 1`
-    if [[ ${GTEST_ARCHIEVE} == "" ]]; then
-        echo "Failed to find gtest-*.zip"
-        echo "Download from: http://googletest.googlecode.com/files/gtest-1.6.0.zip"
-        exit 1
-    fi
-    GTEST_ARCHIEVE_DIR=${GTEST_ARCHIEVE%.zip}
-
-    if [[ ! -d ${GTEST_ARCHIEVE_DIR} ]]; then
-        unzip ${GTEST_ARCHIEVE}
-    fi
-
-    echo "Building google test"
-    cd ${GTEST_ARCHIEVE_DIR}
-    GTEST_DIR=${ROOT}/${GTEST_ARCHIEVE_DIR}
-    g++ -I${GTEST_DIR}/include -I${GTEST_DIR} -c ${GTEST_DIR}/src/gtest-all.cc
-    g++ -I${GTEST_DIR}/include -I${GTEST_DIR} -c ${GTEST_DIR}/src/gtest_main.cc
-    ar -rv libgtest.a gtest-all.o gtest_main.o
-
-    cd ${THORSANVIL_ROOT}/build/
-    cp ${GTEST_DIR}/libgtest.a lib/
-    rm -f include3rd/gtest
-    ln -s ${GTEST_DIR}/include/gtest include3rd/gtest
-
-fi
-
 
