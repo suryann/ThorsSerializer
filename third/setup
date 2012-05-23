@@ -1,5 +1,21 @@
 #!/bin/bash
 
+# Need this to unpack some of the packages.
+# sudo apt-get install unzip
+
+#
+# Need this for building
+sudo apt-get install bison flex
+sudo apt-get install libboost-dev libboost-doc
+
+# if we are using this as a sub project
+# Then do not set up the rest.
+# Note it is the responsibility of the parent project to make
+# sure these dependencies are available.
+if [[ "$1" == "subproject" ]]; then
+    exit
+fi
+
 ROOT=`pwd`
 
  #
@@ -14,14 +30,6 @@ cd build/third
 ./setup
 cd ${ROOT}
 
-
-# Need this to unpack some of the packages.
-# sudo apt-get install unzip
-
-#
-# Need this for building
-sudo apt-get install bison flex
-sudo apt-get install libboost-dev libboost-doc
 
 
  #
