@@ -344,7 +344,7 @@ struct JsonImportPODValueExtractor<I, true>
         std::string         sev     = value.getValue<std::string>();
         std::string const*  find    = std::find(&JsonImportEnumMappings<I>::stringMap[0], &JsonImportEnumMappings<I>::stringMap[size], sev);
         std::size_t         dist    = find - &JsonImportEnumMappings<I>::stringMap[0];
-        if (dist > size)
+        if (dist >= size)
         {
             std::string         typeName(typeid(I).name());
             std::stringstream   msg;
