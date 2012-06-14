@@ -1,5 +1,6 @@
 *.o
-coverage
 unittest
-debug
-release
+coverage/
+debug/
+release/
+profile/
