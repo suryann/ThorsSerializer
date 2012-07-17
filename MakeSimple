@@ -1,0 +1,22 @@
+
+SRC     = $(wildcard Json/*.cpp) $(wildcard Serialize/*.cpp)
+OBJ     = $(patsubst %.cpp,%.o,$(SRC))
+
+CXXFLAGS += -Wno-c++11-extensions
+CPPFLAGS += -I.  -Ibuild/include -Ibuild/include3rd
+
+serialize.a:    $(OBJ)
+	$(AR) $(ARFLAGS) $@ $(OBJ)
+
+Json/ParserRecursive.cpp: Json/ParserShiftReduce.tab.cpp
+
+%.o: %.cpp
+	$(CXX) -c $^ -o $@ $(CPPFLAGS) $(CXXFLAGS)
+
+%.tab.cpp: %.y
+	$(YACC) -o $@ -d $< 
+
+%.lex.cpp: %.l
+	$(LEX) -t $< | sed -e 's/<stdout>/$*.lex.cpp/' -e 's/extern "C" int isatty/\/\/ Removed extern "C" int isatty/' > $@
+
+

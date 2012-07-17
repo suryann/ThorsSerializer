@@ -60,8 +60,8 @@
  *      std::cout << jsonExport(vec) << "\n";
  *      std::cin  >> jsonImport(vec);
  */
-#include "json/ScannerSax.h"
-#include "json/ParserShiftReduce.h"
+#include "Json/ScannerSax.h"
+#include "Json/ParserShiftReduce.h"
 #include <boost/mpl/at.hpp>
 #include <boost/mpl/pop_front.hpp>
 #include <boost/mpl/for_each.hpp>
