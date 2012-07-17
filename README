@@ -1,5 +1,13 @@
-
 Yet another JSON serialization library for C++
+
+Building Notes:
+    This project uses ThorMaker (which is just a set of makefiles) to build
+    If you want to use this follow the build instructions below. It will not
+    only build but run all the unit tests and make sure you have code coverage
+    that exceedes 80% on average across all your files.
+
+    If you want to build yourself then a simple just compile all the source into
+    your own library. There are no special sdependencies (apart from boost).
 
 Objective:
 
