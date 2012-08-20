@@ -1,14 +1,35 @@
 Yet another JSON serialization library for C++
 
-Building Notes:
-    This project uses ThorMaker (which is just a set of makefiles) to build
-    If you want to use this follow the build instructions below. It will not
-    only build but run all the unit tests and make sure you have code coverage
-    that exceedes 80% on average across all your files.
+Build instructions (SIMPLE)
 
-    If you want to build yourself then a simple just compile all the source into
-    your own library. There are no special dependencies (apart from boost). Then
-    use the MakeSimple file
+    make -f MakeSimple
+    # Note this build a Serialize.a library
+    #       No tests are run and no coverage test are done.
+    #       The serialize library are mostly header files so you will still need these
+    #       to include these from your own files.
+
+Building Notes:
+    This project can also use ThorMaker (which is just a set of makefiles) to build
+    This not only builds the code but runs unit tests and checks the code coverage of the unit tests.
+
+    Build instructions:
+    ###################
+
+    # Set up required 3rd party libraries boost/gtest
+    cd third
+    ./setup
+
+
+    # The following builds the Json parser and installs the
+    # release and debug libraries into build/lib and external headers into build/include
+    cd ../Json
+    make install
+
+    # The following builds the Serialization libs and installs the
+    # release and debug libraries into build/lib and external headers into build/include
+    cd ../Serialize
+    make install
+
 
 Objective:
 
@@ -69,30 +90,7 @@ Example: (see code in test.cpp for full code)
     {"data1": 56 ,"data2": 23.456 ,"data3": "Hi there" }
 
 
-Build instructions:
 
-    # Set up required 3rd party libraries boost/gtest
-    cd third
-    ./setup
-
-
-    # The following builds the Json parser and installs the
-    # release and debug libraries into build/lib and external headers into build/include
-    cd ../Json
-    make install
-
-    # The following builds the Serialization libs and installs the
-    # release and debug libraries into build/lib and external headers into build/include
-    cd ../Serialize
-    make install
-
-Build instructions (SIMPLE)
-
-    make -f MakeSimple
-    # Note this build a Serialize.a library
-    #       No tests are run and no coverage test are done.
-    #       The serialize library are mostly header files so you will still need these
-    #       to include these from your own files.
 
 
 
