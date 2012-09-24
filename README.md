@@ -1,3 +1,5 @@
+[![endorse](http://api.coderwall.com/lokiastari/endorsecount.png)](http://coderwall.com/lokiastari)
+
 Yet another JSON serialization library for C++
 
 Build instructions (SIMPLE)
