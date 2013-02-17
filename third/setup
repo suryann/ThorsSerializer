@@ -1,12 +1,21 @@
 #!/bin/bash
 
-# Need this to unpack some of the packages.
-# sudo apt-get install unzip
+install="sudo apt-get --yes"
+
+host=`uname`
+if [[ "${host}" == "Darwin" ]]; then
+    # This is a mac use brew
+    install="brew"
+fi
 
 #
 # Need this for building
-sudo apt-get install bison flex
-sudo apt-get install libboost-dev libboost-doc
+${install} install bison
+${install} install flex
+if [[ "${host}" == "Linux" ]]; then
+    ${install} install libboost-dev
+    ${install} install libboost-doc
+fi
 
 # if we are using this as a sub project
 # Then do not set up the rest.
